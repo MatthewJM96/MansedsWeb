@@ -25,7 +25,8 @@
                 "username" => "TO_ENTER",
                 "password" => "TO_ENTER",
                 "dbname" => "manseds"
-            )
+            ),
+            "tablePrefix" => "manseds_",
         ),
         "cache" => array (
             "namespace" => "mansedscache"

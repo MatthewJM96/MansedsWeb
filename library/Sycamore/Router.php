@@ -19,7 +19,7 @@
 
     namespace Sycamore;
     
-    use Sycamore\Model\Route;
+    use Sycamore\Row\Route;
     use Sycamore\Request;
 
     /**
@@ -89,7 +89,7 @@
          * @param \Sycamore\Request
          * @param \Sycamore\Response
          * 
-         * @return \Sycamore\Route|bool
+         * @return \Sycamore\Row\Route|bool
          */
         public function route(Request& $request) {
             foreach ($this->routes as $route) {

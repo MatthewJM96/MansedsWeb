@@ -33,7 +33,7 @@
         {
             $resultSetPrototype = new ResultSet();
             $resultSetPrototype->setArrayObjectPrototype(new Permission);
-            parent::__construct("manseds_permissions", null, $resultSetPrototype);
+            parent::__construct("permissions", null, $resultSetPrototype);
         }
         
         /**

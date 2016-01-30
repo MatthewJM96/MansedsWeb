@@ -43,25 +43,25 @@
             
             switch(filter_input(INPUT_SERVER, "REQUEST_METHOD")) {
                 case "GET":
-                    if ($route->get) {
+                    if (method_exists($controller, "getAction")) {
                         $controller->getAction();
                         return true;
                     }
                     break;
                 case "POST":
-                    if ($route->post) {
+                    if (method_exists($controller, "postAction")) {
                         $controller->postAction();
                         return true;
                     }
                     break;
                 case "DELETE":
-                    if ($route->delete) {
+                    if (method_exists($controller, "deleteAction")) {
                         $controller->deleteAction();
                         return true;
                     }
                     break;
                 case "PUT":
-                    if ($route->put) {
+                    if (method_exists($controller, "putAction")) {
                         $controller->putAction();
                         return true;
                     }

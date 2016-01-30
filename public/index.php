@@ -27,7 +27,7 @@
     define("PUBLIC_DIRECTORY", dirname(__FILE__));
     define("LIBRARY_DIRECTORY", APP_DIRECTORY."/library");
     define("CONFIG_DIRECTORY", APP_DIRECTORY."/conf");
-    define("MANSEDS_DIRECTORY", LIBRARY_DIRECTORY."/Manseds");
+    define("SYCAMORE_DIRECTORY", LIBRARY_DIRECTORY."/Sycamore");
     
     try {
         require(MANSEDS_DIRECTORY . "/Utils/Timer.php");
@@ -39,7 +39,7 @@
 
         Application::initialise();
         
-        $page = isset($_REQUEST["page"]) ? "/" . $_REQUEST["page"] : "/";
+        $page = ("/" . filter_input(INPUT_GET, "page", FILTER_SANITIZE_STRING)) ?: "/";
         $request = new Request($page);
         
         $frontController = new FrontController();

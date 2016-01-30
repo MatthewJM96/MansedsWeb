@@ -31,7 +31,7 @@
         {
             $resultSetPrototype = new ResultSet();
             $resultSetPrototype->setArrayObjectPrototype(new Newsletter);
-            parent::__construct("manseds_newsletters", null, $resultSetPrototype);
+            parent::__construct("newsletters", null, $resultSetPrototype);
         }
         
         /**
@@ -40,11 +40,11 @@
          * @param bool $sent
          * @param bool $forceDbFetch
          * 
-         * @return \Sycamore\Row\Newsletter
+         * @return \Zend\Db\ResultSet\ResultSet
          */
         public function getBySent($sent, $forceDbFetch = false)
         {
-            return $this->getByUniqueKey("sent", $sent, $forceDbFetch);
+            return $this->getByKey("sent", $sent, $forceDbFetch);
         }
         
         /**
@@ -53,11 +53,11 @@
          * @param bool $cancelled
          * @param bool $forceDbFetch
          * 
-         * @return \Sycamore\Row\Newsletter
+         * @return \Zend\Db\ResultSet\ResultSet
          */
         public function getByCancelled($cancelled, $forceDbFetch = false)
         {
-            return $this->getByUniqueKey("cancelled", $cancelled, $forceDbFetch);
+            return $this->getByKey("cancelled", $cancelled, $forceDbFetch);
         }
         
         /**

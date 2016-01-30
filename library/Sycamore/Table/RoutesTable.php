@@ -33,6 +33,6 @@
         {
             $resultSetPrototype = new ResultSet();
             $resultSetPrototype->setArrayObjectPrototype(new Route);
-            parent::__construct("manseds_routes", null, $resultSetPrototype);
+            parent::__construct("routes", null, $resultSetPrototype);
         }
     }

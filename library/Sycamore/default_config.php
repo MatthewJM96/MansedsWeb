@@ -31,7 +31,8 @@
                 "username" => "", // The username to connect to the database with.
                 "password" => "", // The password to connect to the database with.
                 "dbname" => "" // The name of the database.
-            )
+            ),
+            "tablePrefix" => "",
         ),
         "username" => array ( /* Username Details */
             "minimumLength" => 1,

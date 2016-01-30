@@ -19,16 +19,22 @@
     
     namespace Sycamore;
     
+    use Sycamore\Application;
     use Sycamore\Dispatcher;
     use Sycamore\Request;
     use Sycamore\Response;
     use Sycamore\Router;
+    use Sycamore\Visitor;
     use Sycamore\Utils\TableCache;
+    
+    use Zend\EventManager\EventManager;
+    use Zend\EventManager\EventManagerAwareInterface;
+    use Zend\EventManager\EventManagerInterface;
 
     /**
      * Sycamore front controller class.
      */
-    class FrontController
+    class FrontController implements EventManagerAwareInterface
     {
         /**
          * Router object.
@@ -43,6 +49,13 @@
          * @var \Sycamore\Dispatcher
          */
         protected $dispatcher;
+        
+        /**
+         * The event manager.
+         * 
+         * @var \Zend\EventManager\EventManagerInterface
+         */
+        protected $eventManager;
     
         /**
          * Prepares the router and dispatcher managers.
@@ -52,6 +65,10 @@
          */
         public function __construct()
         {
+            // Prepare event manager.
+            $this->setEventManager(new EventManager());
+            $this->eventManager->setSharedManager(Application::getSharedEventsManager());
+            
             // Get routes from database.
             $routesTable = TableCache::getTableFromCache("RoutesTable");
             $routes = $routesTable->fetchAll();
@@ -81,11 +98,52 @@
                 exit();
             }
             
+            if (!$this->eventManager->trigger("postRouting", $this, array ( "route" => $route ))) {
+                if (Visitor::getInstance()->isLoggedIn) {
+                    // TODO(Matthew): Handle this better. I.e. provide screen explaining lack of permission to access page.
+                    $response->setResponseCode(400)->send();
+                    exit();
+                } else {
+                    // TODO(Matthew): Redirect to log in page or another landing page with message asking user to log in to access that page.
+                    //                redirecting back to desired page on log in.
+                }
+            }
+            
             // Dispatch request to appropriate controller.
             if (!$this->dispatcher->dispatch($route, $request, $response)) {
                 // TODO(Matthew): Handle 500 better.
                 $response->setResponseCode(500)->send();
                 exit();
             }
+        }
+        
+        /**
+         * Sets the event manager for the front controller.
+         * 
+         * @param \Zend\EventManager\EventManagerInterface $eventManager
+         * 
+         * @return \Sycamore\FrontController
+         */
+        public function setEventManager(EventManagerInterface $eventManager)
+        {
+            $eventManager->setIdentifiers(array (
+                __CLASS__,
+                get_called_class(),
+            ));
+            $this->eventManager = $eventManager;
+            return $this;
+        }
+        
+        /**
+         * Gets the event manager instance for this controller.
+         * 
+         * @return \Zend\EventManager\EventManagerInterface
+         */
+        public function getEventManager()
+        {
+            if (!$this->eventManager) {
+                $this->setEventManager(new EventManager());
+            }
+            return $this->eventManager;
         }
     }

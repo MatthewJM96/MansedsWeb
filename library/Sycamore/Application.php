@@ -19,10 +19,12 @@
 
     namespace Sycamore;
 
+    use Sycamore\ACL\ACL;
     use Sycamore\Language\En;
     
     use Zend\Config\Config;
     use Zend\Db\Adapter\Adapter;
+    use Zend\EventManager\SharedEventManager;
     
     class Application
     {
@@ -82,6 +84,20 @@
          * @var string
          */
         protected static $simpleHashAlgo = "sha256";
+        
+        /**
+         * Holds the shared event manager for the application.
+         * 
+         * @var \Zend\EventManager\SharedEventManager
+         */
+        protected static $sharedEventManager;
+        
+        /**
+         * Holds the ACL manager instance.
+         * 
+         * @var \Sycamore\ACL\ACL
+         */
+        protected static $acl;
         
         /**
          * Passes the config directory path.
@@ -164,6 +180,26 @@
         }
         
         /**
+         * Passes the shared event manager.
+         * 
+         * @return \Zend\EventManager\SharedEventManager
+         */
+        public static function getSharedEventsManager()
+        {
+            return self::$sharedEventManager;
+        }
+        
+        /**
+         * Passes the ACL manager.
+         * 
+         * @return \Sycamore\ACL\ACL
+         */
+        public static function getACLManager()
+        {
+            return self::$acl;
+        }
+        
+        /**
          * Protected constructor.
          */
         protected function __construct() 
@@ -190,6 +226,10 @@
                 self::$language = new $languageClass;
             }
             
+            self::$sharedEventManager = new SharedEventManager();
+            
+            self::$acl = new ACL();
+            
             self::prepareDb();
             
             self::$initialised = true;
@@ -203,7 +243,7 @@
         protected static function loadConfig()
         {
             if (file_exists(CONFIG_DIRECTORY . "/config.php")) {
-                $config = new Config(require(MANSEDS_DIRECTORY . "/default_config.php"), true);
+                $config = new Config(require(SYCAMORE_DIRECTORY . "/default_config.php"), true);
                 $userSpecificConfig = new Config(require(CONFIG_DIRECTORY . "/config.php"));
                 
                 $config->merge($userSpecificConfig)->setReadOnly();

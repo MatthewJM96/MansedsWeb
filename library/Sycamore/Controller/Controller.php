@@ -19,17 +19,22 @@
 
     namespace Sycamore\Controller;
 
+    use Sycamore\Application;
     use Sycamore\ErrorManager;
     use Sycamore\Request;
     use Sycamore\Response;
     use Sycamore\Renderer\Renderer;
     use Sycamore\Utils\APIData;
     
+    use Zend\EventManager\EventManager;
+    use Zend\EventManager\EventManagerAwareInterface;
+    use Zend\EventManager\EventManagerInterface;
+    
     /**
      * Abstract Sycamore controller class. 
      * All controllers must extend this class.
      */
-    abstract class Controller
+    abstract class Controller implements EventManagerAwareInterface
     {
         /**
          * Request object.
@@ -60,34 +65,11 @@
         protected $properties = null;
         
         /**
-         * Passes the request for the instanced Controller.
-         *
-         * @return \Sycamore\Request
+         * The event manager.
+         * 
+         * @var \Zend\EventManager\EventManagerInterface
          */
-        public function getRequest()
-        {
-            return $this->request;
-        }
-        
-        /**
-         * Passes the response for the instanced Controller.
-         *
-         * @return \Sycamore\Response
-         */
-        public function getResponse()
-        {
-            return $this->response;
-        }
-        
-        /**
-         * Passes the renderer for the instanced Controller.
-         *
-         * @return \Sycamore\Renderer\Renderer
-         */
-        public function getRenderer()
-        {
-            return $this->response;
-        }
+        protected $eventManager;
         
         /**
          * Prepares request and response objects.
@@ -96,11 +78,15 @@
          * @param \Sycamore\Response
          * @param \Sycamore\Renderer\Renderer
          */
-        public function __construct(Request &$request, Response &$response, Renderer $renderer)
+        public function __construct(Request& $request, Response& $response, Renderer $renderer)
         {
             $this->request = $request;
             $this->response = $response;
             $this->renderer = $renderer;
+            
+            // Prepare event manager.
+            $this->setEventManager(new EventManager());
+            $this->eventManager->setSharedManager(Application::getSharedEventsManager());
         }
         
         /**
@@ -154,6 +140,36 @@
             }
             $this->response->send();
             $this->renderer->render($renderContent);
+        }
+        
+        /**
+         * Sets the event manager for the controller.
+         * 
+         * @param \Zend\EventManager\EventManagerInterface $eventManager
+         * 
+         * @return \Sycamore\Controller\Controller
+         */
+        public function setEventManager(EventManagerInterface $eventManager)
+        {
+            $eventManager->setIdentifiers(array (
+                __CLASS__,
+                get_called_class(),
+            ));
+            $this->eventManager = $eventManager;
+            return $this;
+        }
+        
+        /**
+         * Gets the event manager instance for this controller.
+         * 
+         * @return \Zend\EventManager\EventManagerInterface
+         */
+        public function getEventManager()
+        {
+            if (!$this->eventManager) {
+                $this->setEventManager(new EventManager());
+            }
+            return $this->eventManager;
         }
 //        
 //        /**

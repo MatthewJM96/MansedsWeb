@@ -33,7 +33,7 @@
         {
             $resultSetPrototype = new ResultSet();
             $resultSetPrototype->setArrayObjectPrototype(new User);
-            parent::__construct("manseds_users", null, $resultSetPrototype);
+            parent::__construct("users", null, $resultSetPrototype);
         }
         
         /**
@@ -97,12 +97,8 @@
          */
         public function isUsernameUnique($username)
         {
-            $usernameStr = (string) $username;
-            $row = $this->tableGateway->select(array("username" => $usernameStr))->current();
-            if (!$row) {
-                return true;
-            }
-            return false;
+//            $usernameStr = (string) $username;
+            return !$this->tableGateway->select(array("username" => $usernameStr))->current();
         }
         
         /**
@@ -114,11 +110,7 @@
          */
         public function isEmailUnique($email)
         {
-            $emailStr = (string) $email;
-            $row = $this->tableGateway->select(array("email" => $emailStr))->current();
-            if (!$row) {
-                return true;
-            }
-            return false;
+//            $emailStr = (string) $email;
+            return !$this->tableGateway->select(array("email" => $emailStr))->current();
         }
     }

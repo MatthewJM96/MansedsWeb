@@ -31,6 +31,19 @@
         {
             $resultSetPrototype = new ResultSet();
             $resultSetPrototype->setArrayObjectPrototype(new ACLGroup);
-            parent::__construct("manseds_acl_group", null, $resultSetPrototype);
+            parent::__construct("acl_groups", null, $resultSetPrototype);
+        }
+        
+        /**
+         * Get an ACL group by its name.
+         * 
+         * @param string $name
+         * @param bool $forceDbFetch
+         * 
+         * @return \Sycamore\Row\ACLGroup
+         */
+        public function getByName($name, $forceDbFetch = false)
+        {
+            return $this->getByUniqueKey("name", $name, $forceDbFetch);
         }
     }

@@ -17,16 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    namespace Sycamore\Row;
+    namespace Sycamore\ACL;
     
-    use Sycamore\Row\Row;
-    
-    class ACLGroupActionMap extends Row
+    interface ListenerInterface
     {
-        // Admin token required:
-        ///* <0 -> DENY, 0 -> NEITHER, >0 -> ALLOW. ALLOW overridden by DENY.
-        public $state;
-        // Uneditable in API:
-        public $groupId;
-        public $actionKey;
+        public function prepare(\Sycamore\ACL\ACL $acl);
     }

@@ -24,10 +24,10 @@
     
     class Route extends Row
     {
-        public $id;
+        // Admin token required:
         /**
          * Describes the string with filters. E.g.:
-         * (1) "/admin/blogs/edit/([a-zA-Z0-9_\\-]+)"
+         * (1) "/admin/blogs/edit/([a-zA-Z0-9_\/\-]+)"
          * (2) "/api/newsletter/subscriber"
          * 
          * @var string 
@@ -49,19 +49,10 @@
          * @var string
          */
         public $keys;
-        /**
-         * Set of tinyint columns defining which HTTP 
-         * request types are valid.
-         * 
-         * @var bool
-         * @var bool
-         * @var bool
-         * @var bool
-         */
-        public $get;
-        public $post;
-        public $delete;
-        public $put;
+        ///* Describes whether anyone can access the route without being logged in and have appropriate permissions.
+        public $open;
+        // Uneditable in API.
+        public $id;
         
         /**
          * Assesses if the request matches this route.
@@ -75,10 +66,10 @@
         {
             $keys = explode(",", $this->keys);
             // Compile pattern.
-            $pattern = "/" . preg_replace("/\//", "\/", $this->path) . "/";
+            $pattern = "/" . $this->path . "/";
             $captures = array();
             if (preg_match($pattern, $request->getUri(), $captures)) {
-                // Get rid of full capture - we know that will be the full URI.
+                // Get rid of first capture - we know that will be the full URI.
                 array_shift($captures);
                 // Pass parameters in URI to request.
                 foreach ($captures as $i => $capture) {

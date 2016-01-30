@@ -23,6 +23,9 @@
     
     class ACLGroupRouteMap extends Row
     {
+        // Admin token required:
+        ///* <0 -> DENY, 0 -> NEITHER, >0 -> ALLOW. ALLOW overridden by DENY.
+        public $state;
         // Uneditable in API:
         public $groupId;
         public $routeId;
