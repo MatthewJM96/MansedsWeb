@@ -1,0 +1,103 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+@import url("http://fonts.googleapis.com/css?family=Oleo+Script:400|Open+Sans:300,300italic,600,600italic,800");
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    min-width:350px; /* suppose you want minimun width of 1000px */
+    width: auto !important;  /* Firefox will set width as auto */
+    width:350px;             /* As IE ignores !important it will set width as 1000px; */
+}
+
+.navbar {
+    min-width:350px; /* suppose you want minimun width of 1000px */
+    width: auto !important;  /* Firefox will set width as auto */
+    width:350px;             /* As IE ignores !important it will set width as 1000px; */
+}
+
+.navbar-header {
+    padding-bottom: 20px;
+}
+
+td {
+    padding-right: 25px;
+    vertical-align: top;
+}
+
+tr.event_form > td {
+    padding-bottom: 10px;
+}
+
+@media (max-width: 767px) {
+    .navbar-toggle {
+        margin-right: 20px;
+        margin-top: 25px;
+    }
+    .social_navbuttons {
+        display: none;
+    }
+    .navbar-brand {
+        margin-left: 15px;
+    }
+    div.row {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    footer {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 395px) {
+    .navbar-toggle {
+        margin-right: 20px;
+        margin-top: 25px;
+    }
+    .social_navbuttons {
+        display: none;
+    }
+    .navbar-brand {
+        margin-left: 15px;
+    }
+    div.row {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    footer {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    .navbar-brand img {
+        width: 260px;
+        height: auto;
+    }
+    .navbar-toggle {
+        margin-right: 30px;
+        margin-top: 25px;
+    }
+}
+
+@media (min-width: 396px) {
+    .navbar-brand img {
+        width: 300px;
+        height: auto;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
