@@ -19,10 +19,10 @@
 
     namespace Sycamore\Table;
     
-    use Sycamore\Row\ACLGroup;
+    use Sycamore\Row\Action;
     use Sycamore\Table\ObjectTable;
     
-    class ACLGroupTable extends ObjectTable
+    class ActionTable extends ObjectTable
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
@@ -30,21 +30,20 @@
         public function __construct()
         {
             $resultSetPrototype = new ResultSet();
-            $resultSetPrototype->setArrayObjectPrototype(new ACLGroup);
-            parent::__construct("acl_groups", null, $resultSetPrototype);
+            $resultSetPrototype->setArrayObjectPrototype(new Action);
+            parent::__construct("actions", null, $resultSetPrototype);
         }
         
         /**
-         * Get an ACL group by its name.
+         * Get an action by its key.
          * 
-         * @param string $name
+         * @param string $key
          * @param bool $forceDbFetch
          * 
-         * @return \Sycamore\Row\ACLGroup
+         * @return \Sycamore\Row\Action
          */
-        public function getByName($name, $forceDbFetch = false)
+        public function getByKey($key, $forceDbFetch = false)
         {
-            return $this->getByUniqueKey("name", $name, $forceDbFetch);
+            return $this->getByUniqueKey("key", $key, $forceDbFetch);
         }
     }
-    

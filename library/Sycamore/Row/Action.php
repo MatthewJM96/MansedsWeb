@@ -1,4 +1,4 @@
-  <?php
+<?php
 
 /* 
  * Copyright (C) 2016 Matthew Marshall
@@ -21,26 +21,12 @@
     
     use Sycamore\Row\Row;
     
-    class User extends Row
+    class Action extends Row
     {
-        // Admin/THIS User Token Required:
-        public $name;
-        public $preferredName;
-        public $dateOfBirth;
-        /// Password Required in case of THIS User Token:
-        public $password;
-        /// Verification Required (via JWT) in case of THIS User Token:
-        public $primaryEmail;
-        public $secondaryEmail;
-        public $verified;
-        /// Admin Action Required (DISALLOW THIS User Token - unless Admin):
-        public $username;
-        public $banned;
+        // Admin token required:
+        public $description;
+        public $open;
         // Uneditable in API:
         public $id;
-        public $lastOnline;
-        ///* Superusers can do anything and have complete rights (i.e. cannot be superseded by any ACL group).
-        public $superUser;
-        
-        // TODO(Matthew): Add functions to get data about user?
+        public $key;
     }

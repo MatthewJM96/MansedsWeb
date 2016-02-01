@@ -73,7 +73,7 @@
         {
             return $this->getBySelect(
                 array ( "groupId" => $groupId, "routeId" => $routeId ),
-                strval($groupId) . strval($routeId),
+                strval($groupId) . "-" . strval($routeId),
                 "get_by_acl_group_id_and_route_id",
                 "Could not find row with an ACL group ID of $groupId and route ID of $routeId, in table $this->table.",
                 $forceDbFetch

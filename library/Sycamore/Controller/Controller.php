@@ -122,6 +122,7 @@
             return (!$missingNeededData && $hadEntry);
         }
         
+        
         /**
          * If EXIT_REQUEST_ERROR is passed intro prepareExit, content will be drawn from error manager.
          */
@@ -152,6 +153,7 @@
         public function setEventManager(EventManagerInterface $eventManager)
         {
             $eventManager->setIdentifiers(array (
+                "action",
                 __CLASS__,
                 get_called_class(),
             ));

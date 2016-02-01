@@ -48,34 +48,34 @@
         }
         
         /**
-         * Gets all mappings with action key as given.
+         * Gets all mappings with action ID as given.
          * 
-         * @param string $key
+         * @param int $id
          * @param bool $forceDbFetch
          * 
          * @return Zend\Db\ResultSet\ResultSet
          */
-        public function getByActionKey($key, $forceDbFetch = false)
+        public function getByActionId($id, $forceDbFetch = false)
         {
-            return $this->getByKey("actionKey", $key, $forceDbFetch);
+            return $this->getByKey("actionId", $id, $forceDbFetch);
         }
         
         /**
-         * Gets all mappings with ACL group ID and action key as given.
+         * Gets all mappings with ACL group ID and action ID as given.
          * 
          * @param int $groupId
-         * @param string $key
+         * @param int $actionId
          * @param bool $forceDbFetch
          * 
          * @return \Zend\Db\ResultSet\ResultSet
          */
-        public function getByACLGroupIdAndActionKey($id, $key, $forceDbFetch = false)
+        public function getByACLGroupIdAndActionKey($groupId, $actionId, $forceDbFetch = false)
         {
             return $this->getBySelect(
-                array ( "groupId" => $id, "actionKey" => $key ),
-                strval($id) . $key,
+                array ( "groupId" => $groupId, "actionKey" => $actionId ),
+                strval($groupId) . "-" . strval($actionId),
                 "get_by_acl_group_id_and_action_key",
-                "Could not find row with an ACL group ID of $id and action key of $key, in table $this->table.",
+                "Could not find row with an ACL group ID of $groupId and action ID of $actionId, in table $this->table.",
                 $forceDbFetch
             );
         }

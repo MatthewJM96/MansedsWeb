@@ -17,26 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    namespace Sycamore\Utils\User;
+    namespace Sycamore\User;
 
     use Sycamore\Application;
-    use Sycamore\Utils\Random;
+    use Sycamore\Utils\AbstractTokenManager;
     use Sycamore\Utils\TableCache;
-    
-    use Firebase\JWT\BeforeValidException;
-    use Firebase\JWT\ExpiredException;
-    use Firebase\JWT\JWT;
-    use Firebase\JWT\SignatureInvalidException;
     
     /**
      * Session has functions related to creation and checking of user sessions.
      */
-    class Session
+    class Session extends AbstractTokenManager
     {
         /**
          * Creates a new user session.
          *
-         * @var string - The username of the session's user.
+         * @param string $usernameOrEmail
+         * @param bool $extendedSession
          * 
          * @return boolean
          */
@@ -58,31 +54,18 @@
                 $sessionLength = Application::getConfig()->security->sessionLength;
             }
             
-            $time = time();
-            $sessionPayload = array (
-                "iss" => Application::getConfig()->domain,
-                "aud" => Application::getConfig()->domain,
-                "iat" => $time,
-                "exp" => $time + $sessionLength,
-                "nbf" => $time,
-                "prn" => "user",
-                "jti" => Random::randomString(12),
-                Application::getConfig()->domain => array (
-                    "id" => $user->id,
-                    "name" => $user->username,
-                    "email" => $user->email
-                )
-            );
+            $token = self::constructToken(array (
+                "id" => $user->id,
+                "name" => $user->username,
+                "email" => $user->email,
+                "superUser" => $user->superUser
+            ), $sessionLength, "user");
             
-            $token = JWT::encode($sessionPayload, Application::getConfig()->security->sessionPrivateKey, Application::getConfig()->security->sessionHashAlgorithm);
-                        
-            setcookie("SLIS", "$token", time() + $sessionLength, "/", Application::getConfig()->domain, Application::isSecure()); // SLIS -> Sycamore Logged In Session
+            return setcookie("SLIS", "$token", time() + $sessionLength, "/", Application::getConfig()->domain, Application::isSecure()); // SLIS -> Sycamore Logged In Session
         }
         
         /**
          * Acquires a user session, if it exists.
-         *
-         * @var string - The session cookie to validate.
          *
          * @return int|array - The token private claim contents on success, else:
          *                      -1 for invalid JWT.
@@ -97,21 +80,6 @@
                 return 0;
             }
             
-            try {
-                $token = (array) JWT::decode($slis, Application::getConfig()->security->sessionPrivateKey, array ( Application::getConfig()->security->sessionHashAlgoirthm ));
-            } catch (\DomainException $ex) {
-                logCriticalError($ex);
-                exit();
-            } catch (\UnexpectedValueException $ex) {
-                return -1;
-            } catch (SignatureInvalidException $ex) {
-                return -2;
-            } catch (BeforeValidException $ex) {
-                return -3;
-            } catch (ExpiredException $ex) {
-                return -4;
-            }
-            
-            return $token[Application::getConfig()->domain];
+            return self::verifyToken($slis);
         }
     }

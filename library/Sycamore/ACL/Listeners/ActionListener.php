@@ -21,23 +21,28 @@
     
     use Sycamore\Application;
     use Sycamore\ACL\ListenerInterface;
+    use Sycamore\Utils\TableCache;
     use Sycamore\Visitor;
     
     use Zend\EventManager\EventInterface;
     
-    class RouteListener implements ListenerInterface
+    class ActionListener implements ListenerInterface
     {
         public function prepare(\Sycamore\ACL\ACL $acl) {
-            Application::getSharedEventsManager()->attach("route", "postRouting", function (EventInterface $event) use ($acl) {
+            Application::getSharedEventsManager()->attach("action", array("preExecuteGet", "preExecutePost", "preExecutePut", "preExecuteDelete"), function (EventInterface $event) use ($acl) {
                 // Stop propogation - we want last say!
                 $event->stopPropogation();
                 
-                // Get route.
-                $route = $event->getParam("route");
+                // Construct action key.
+                $actionKey = get_class($event->getTarget()) . "\\" . $event->getName();
+                
+                // Get action by its key.
+                $actionTable = TableCache::getTableFromCache("ActionTable");
+                $action = $actionTable->getByKey($actionKey);
                 
                 // If visitor is not logged in, then only allow open routes.
                 if (!Visitor::getInstance()->isLoggedIn) {
-                    if ($route->open) {
+                    if ($action->open) {
                         return true;
                     }
                     return false;
@@ -48,21 +53,7 @@
                     return true;
                 }
                 
-                // Get associated ACL groups.
-                $aclGroupRouteMaps = $acl->getACLGroupRouteMapsByRouteId($route->id);
                 
-                // Check if any acl groups deny access, or if at least one allows otherwise.
-                $allowed = false;
-                foreach ($aclGroupRouteMaps as $aclGroupRouteMap) {
-                    if ($acl->userHasACLGroup(Visitor::getInstance()->id, $aclGroupRouteMap->groupId)) {
-                        if ($aclGroupRouteMap->state < 0) {
-                            return false;
-                        } else if ($aclGroupRouteMap->state > 0) {
-                            $allowed = true;
-                        }
-                    }
-                }
-                return $allowed;
             });
         }
     }

@@ -41,8 +41,8 @@
         "security" => array ( /* Security Details */
             "enableClickjackingProtection" => true, // If true, prevents clickjacking attacks by not allowing site to be rendered in frame of another site.
             "simpleHashAlgorithm" => "sha256", // The hashing algorithm to be used for simple hashes - no sensitive data is hashed using this.
-            "sessionPrivateKey" => "CHANGE_THIS", // The key used for signing JWTs. Do NOT share.
-            "sessionHashAlgorithm" => "HS256", // The hashing algorithm used for the signing of JWTs.
+            "tokenPrivateKey" => "CHANGE_THIS", // The key used for signing JWTs. Do NOT share.
+            "tokenHashAlgorithm" => "HS256", // The hashing algorithm used for the signing of JWTs.
             "sessionLength" => 43200/*12 Hours*/, // How long should log in session last if not extended?
             "sessionLengthExtended" => 2629740,/*~1 Month*/ // How long should an extended log-in session last?
             "password" => array ( /* Password Security Details */
@@ -51,10 +51,11 @@
                 "minimumLength" => 8,
                 "maximumLength" => 48,
             ),
+            "verifyTokenLifetime" => 21600/*6 Hours*/ // How long does a verification token last?
         ),
         "language" => "en", // The language of the application.
         "cache" => array ( /* Cache Details */
             "timeToLive" => 1800/*30 Mins*/, // How long does the data live for in cache?
-            "namespace" => "oscache" // Namespace in which all application data is cached.
+            "namespace" => "sycamore_cache" // Namespace in which all application data is cached.
         )
     );

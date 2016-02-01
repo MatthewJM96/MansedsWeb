@@ -17,16 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    namespace Sycamore\Row;
+    namespace Sycamore\Utils;
     
-    use Sycamore\Row\Row;
-    
-    class ACLGroupActionMap extends Row
+    class ActionState
     {
-        // Admin token required:
-        ///* <0 -> DENY, 0 -> NEITHER, >0 -> ALLOW. ALLOW overridden by DENY.
-        public $state;
-        // Uneditable in API:
-        public $groupId;
-        public $actionId;
+        const SUCCESS = 1;
+        const DENIED_NOT_LOGGED_IN = 0;
+        const DENIED = -1;
+        const FAILED = -2;
     }

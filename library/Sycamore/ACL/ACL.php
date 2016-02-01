@@ -19,6 +19,7 @@
 
     namespace Sycamore\ACL;
     
+    use Sycamore\ACL\ListenerInterface;
     use Sycamore\Utils\TableCache;
     
     class ACL
@@ -38,6 +39,9 @@
             $this->initialiseACL();
         }
         
+        /**
+         * Initialises the ACL manager.
+         */
         protected function initialiseACL()
         {
             // Prepare listeners.
@@ -46,19 +50,34 @@
                 $className = "Sycamore\\ACL\\Listeners\\" . $file->getBasename(".php");
                 if (class_exists($className)) {
                     $listener = new $className();
-                    if (method_exists($listener, "prepare")) {
+                    if ($listener instanceof ListenerInterface) {
                         $listener->prepare($this);
                     }
                 }
             }
         }
         
+        /**
+         * Gets the collection of maps that map ACL groups to the give route ID.
+         * 
+         * @param int $routeId
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
         public function getACLGroupRouteMapsByRouteId($routeId)
         {
             $aclGroupRouteMapTable = TableCache::getTableFromCache("ACLGroupRouteMapTable");
             return $aclGroupRouteMapTable->getByRouteId($routeId);
         }
         
+        /**
+         * Assesses if the given user is a member of the given ACL group.
+         * 
+         * @param int $userId
+         * @param int $groupId
+         * 
+         * @return bool
+         */
         public function userHasACLGroup($userId, $groupId) {
             $aclGroupUserMapTable = TableCache::getTableFromCache("ACLGroupUserMapTable");
             return $aclGroupUserMapTable->areMappedTogether($groupId, $userId);

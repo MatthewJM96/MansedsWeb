@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    namespace Sycamore\Utils\User;
+    namespace Sycamore\User;
     
     use Sycamore\Application;
 
@@ -29,9 +29,9 @@
         /**
          * Return hashed password.
          *
-         * @var string - The password to hash.
+         * @var string $password
          *
-         * @return string - The hashed password.
+         * @return string
          */
         public static function hashPassword($password)
         {
@@ -41,8 +41,8 @@
         /**
          * Verifies given password is the same as given hash.
          *
-         * @var string - The password to check.
-         * @var string - The hash to check against.
+         * @var string $password
+         * @var string $hash
          *
          * @return boolean
          */
@@ -54,7 +54,7 @@
         /**
          * Verifies if the given password needs rehashing.
          *
-         * @var string - The password to check.
+         * @var string $password
          *
          * @return boolean
          */

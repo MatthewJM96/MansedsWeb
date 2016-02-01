@@ -17,50 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    use Manseds\Application;
-    use Manseds\Autoloader;
-    use Manseds\FrontController;
-    use Manseds\Request;
-    use Manseds\Utils\Timer;
-
-    define("APP_DIRECTORY", dirname(__DIR__));
-    define("PUBLIC_DIRECTORY", dirname(__FILE__));
-    define("LIBRARY_DIRECTORY", APP_DIRECTORY."/library");
-    define("CONFIG_DIRECTORY", APP_DIRECTORY."/conf");
-    define("SYCAMORE_DIRECTORY", LIBRARY_DIRECTORY."/Sycamore");
+    require(dirname(__DIR__)."/library/Sycamore/SycamoreIndex.php");
     
-    try {
-        require(MANSEDS_DIRECTORY . "/Utils/Timer.php");
-        $timer = new Timer();
-        $timer->begin();
-        
-        require(MANSEDS_DIRECTORY . "/Autoloader.php");
-        Autoloader::getInstance()->setupAutoloader();
-
-        Application::initialise();
-        
-        $page = ("/" . filter_input(INPUT_GET, "page", FILTER_SANITIZE_STRING)) ?: "/";
-        $request = new Request($page);
-        
-        $frontController = new FrontController();
-        $frontController->run($request);
-        
-        $timer->end();
-        file_put_contents(APP_DIRECTORY . "/logs/timings.txt", "Process Time: ".$timer->getDuration()."s  -  Request: $page\n", FILE_APPEND);
-    } catch (Exception $ex) {
-        logCriticalError($ex);
-        exit();
-    }
-    
-    /**
-     * Quick critical error logging.
-     * 
-     * @param \Exception $ex
-     */
-    function logCriticalError(\Exception $ex) {
-        error_log("/////  CRITICAL ERROR  \\\\\\\\\\" . PHP_EOL 
-                . "Error Code: " . $ex->getCode() . PHP_EOL 
-                . "Error Location: " . $ex->getFile() . " : " . $ex->getLine() . PHP_EOL 
-                . "Error Message: " . $ex->getMessage()) . PHP_EOL
-                . "Stack Trace: " . PHP_EOL . $ex->getTraceAsString();
-    }
+    Sycamore\SycamoreIndex::run();

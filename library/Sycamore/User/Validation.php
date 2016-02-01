@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    namespace Sycamore\Utils\User;
+    namespace Sycamore\User;
     
     use Sycamore\Application;
     use Sycamore\ErrorManager;

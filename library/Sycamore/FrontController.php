@@ -25,6 +25,7 @@
     use Sycamore\Response;
     use Sycamore\Router;
     use Sycamore\Visitor;
+    use Sycamore\Utils\ActionState;
     use Sycamore\Utils\TableCache;
     
     use Zend\EventManager\EventManager;
@@ -106,14 +107,20 @@
                 } else {
                     // TODO(Matthew): Redirect to log in page or another landing page with message asking user to log in to access that page.
                     //                redirecting back to desired page on log in.
+                    //                Consider how to deal with if the request is an API call.
                 }
             }
             
             // Dispatch request to appropriate controller.
-            if (!$this->dispatcher->dispatch($route, $request, $response)) {
+            $result = $this->dispatcher->dispatch($route, $request, $response);
+            if ($result == ActionState::FAILED) {
                 // TODO(Matthew): Handle 500 better.
                 $response->setResponseCode(500)->send();
                 exit();
+            } else if ($result == ActionState::DENIED_NOT_LOGGED_IN) {
+                // TODO(Matthew): Redirect to log in page or another landing page with message asking user to log in to access that page.
+                //                redirecting back to desired page on log in.
+                //                Consider how to deal with if the request is an API call.
             }
         }
         
@@ -127,6 +134,7 @@
         public function setEventManager(EventManagerInterface $eventManager)
         {
             $eventManager->setIdentifiers(array (
+                "route",
                 __CLASS__,
                 get_called_class(),
             ));

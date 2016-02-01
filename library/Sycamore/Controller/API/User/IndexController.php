@@ -23,9 +23,11 @@
     use Sycamore\Controller\Controller;
     use Sycamore\Model\User;
     use Sycamore\Utils\APIData;
+    use Sycamore\Utils\ActionState;
     use Sycamore\Utils\TableCache;
-    use Sycamore\Utils\User\Validation as UserValidation;
-    use Sycamore\Utils\User\Security as UserSecurity;
+    use Sycamore\User\Validation as UserValidation;
+    use Sycamore\User\Security as UserSecurity;
+    use Sycamore\Visitor;
     
     /**
      * Controller for handling newsletters.
@@ -59,7 +61,7 @@
                 if (!is_array($ids) || !is_array($emails) || !is_array($usernames)) {
                     ErrorManager::addError("data_error", "invalid_data_filter_object");
                     $this->prepareExit();
-                    return false;
+                    return ActionState::DENIED;
                 }
                 
                 // Ascertain each ID, email and username is valid in type and format.
@@ -80,7 +82,7 @@
                 }
                 if (ErrorManager::hasError()) {
                     $this->prepareExit();
-                    return false;
+                    return ActionState::DENIED;
                 }
                 
                 // Grab the user table.
@@ -110,7 +112,7 @@
                 // Send the client the fetched users.
                 $this->response->setResponseCode(200)->send();
                 $this->renderer->render(APIData::encode(array("data" => $result)));
-                return true;
+                return ActionState::SUCCESS;
             }
         }
         
@@ -128,7 +130,7 @@
             );
             if (!$this->dataProvided($dataProvided, INPUT_POST)) {
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
             }
             
             // Acquire the sent data, sanitised appropriately.
@@ -143,7 +145,7 @@
             UserValidation::passwordStrengthCheck($password);
             if (ErrorManager::hasError()) {
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
             }
             
             // Construct a new user.
@@ -159,7 +161,7 @@
             
             // Let client know user creation was successful.
             $this->response->setResponseCode(200)->send();
-            return true;
+            return ActionState::SUCCESS;
         }
         
         /**
@@ -173,7 +175,7 @@
             );
             if (!$this->dataProvided($dataProvided, INPUT_GET)) {
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
             }
             
             // Acquire the sent data, sanitised appropriately.
@@ -187,7 +189,7 @@
             if (!$user) {
                 ErrorManager::addError("user_id_error", "invalid_user_id");
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
             }
             
             // Delete subscriber.
@@ -195,11 +197,16 @@
             
             // Let client know user deletion was successful.
             $this->response->setResponseCode(200)->send();
-            return true;
+            return ActionState::SUCCESS;
         }
         
         /**
          * Executes the process of updating a desired user.
+         * Only handles the following data points of a user:
+         *  - Name
+         *  - Preferred Name
+         *  - Date of Birth
+         *  - Password
          */
         public function putAction()
         {
@@ -209,25 +216,67 @@
             );
             if (!$this->dataProvided($dataProvided, INPUT_GET)) {
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
             }
-            
-            
             
             // Acquire the ID, sanitised appropriately.
             $id = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
+            
+            // Assess if rights needed are held by the user.
+            $isAdmin = $this->eventManager->trigger("preExecutePut", $this);
+            if (!$isAdmin) {
+                if (!Visitor::getInstance()->isLoggedIn) {
+                    return ActionState::DENIED_NOT_LOGGED_IN;
+                } else if (Visitor::getInstance()->id != $id) {
+                    ErrorManager::addError("permission_error", "permission_missing");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+            }
             
             // Get user with provided delete key.
             $userTable = TableCache::getTableFromCache("UserTable");
             $user = $userTable->getById($id);
             
-            // Error out if no subscriber was found to have the delete key.
+            // Handle invalid user IDs.
             if (!$user) {
                 ErrorManager::addError("user_id_error", "invalid_user_id");
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
             }
             
+            // Get possible data points to update.
+            $name = filter_input(INPUT_GET, "name", FILTER_SANITIZE_STRING);
+            $preferredName = filter_input(INPUT_GET, "preferredName", FILTER_SANITIZE_STRING);
+            $dateOfBirth = filter_input(INPUT_GET, "dateOfBirth", FILTER_SANITIZE_NUMBER_INT);
+            $newPassword = filter_input(INPUT_GET, "newPassword", FILTER_SANITIZE_STRING);
+            $password = filter_input(INPUT_GET, "password", FILTER_SANITIZE_STRING);
             
+            // Check new and old passwords are valid if a new password is provided.
+            if ($newPassword) {
+                UserValidation::passwordStrengthCheck($newPassword);
+                if (!$password) {
+                    ErrorManager::addError("password_error", "old_password_missing");
+                } else if (UserSecurity::verifyPassword($password, $user->password)) {
+                    ErrorManager::addError("password_error", "old_password_incorrect");
+                }
+                if (ErrorManager::hasError()) {
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+                $user->password = UserSecurity::hashPassword($newPassword);
+            }
+            
+            // Update user details.
+            $user->name = $name;
+            $user->preferredName = $preferredName;
+            $user->dateOfBirth = $dateOfBirth;
+            
+            // Commit changes.
+            $userTable->save($user, $user->id);
+                        
+            // Let client know user update was successful.
+            $this->response->setResponseCode(200)->send();
+            return ActionState::SUCCESS;
         }
     }

@@ -22,6 +22,7 @@
     use Sycamore\Model\Route;
     use Sycamore\Request;
     use Sycamore\Response;
+    use Sycamore\Utils\ActionState;
 
     /**
      * Sycamore dispatcher class.
@@ -36,6 +37,8 @@
          * @param \Sycamore\Route $route
          * @param \Sycamore\Request $request
          * @param \Sycamore\Response $response
+         * 
+         * @return int
          */
         public function dispatch(Route $route, Request& $request, Response& $response)
         {
@@ -44,31 +47,27 @@
             switch(filter_input(INPUT_SERVER, "REQUEST_METHOD")) {
                 case "GET":
                     if (method_exists($controller, "getAction")) {
-                        $controller->getAction();
-                        return true;
+                        return $controller->getAction();
                     }
                     break;
                 case "POST":
                     if (method_exists($controller, "postAction")) {
-                        $controller->postAction();
-                        return true;
+                        return $controller->postAction();
                     }
                     break;
                 case "DELETE":
                     if (method_exists($controller, "deleteAction")) {
-                        $controller->deleteAction();
-                        return true;
+                        return $controller->deleteAction();
                     }
                     break;
                 case "PUT":
                     if (method_exists($controller, "putAction")) {
-                        $controller->putAction();
-                        return true;
+                        return $controller->putAction();
                     }
                     break;
             }
             
-            return false;
+            return ActionState::FAILED;
         }
   
         /**

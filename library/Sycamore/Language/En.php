@@ -52,7 +52,8 @@
             "invalid_data_filter_object" => "The data parameters expect json encoded arrays.",
             "invalid_username" => "The username provided was not a valid username.",
             "invalid_user_id" => "The user ID provided was not a valid ID.",
-            "missing_user_id" => "No user ID was provided."
+            "missing_user_id" => "No user ID was provided.",
+            "permission_missing" => "You are missing the needed permission to complete this action."
         );
         
         public function __construct()
