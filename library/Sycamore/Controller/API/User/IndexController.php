@@ -39,6 +39,17 @@
          */
         public function getAction()
         {
+            // Assess if permissions needed are held by the user.
+            if (!$this->eventManager->trigger("preExecuteGet", $this)) {
+                if (!Visitor::getInstance()->isLoggedIn) {
+                    return ActionState::DENIED_NOT_LOGGED_IN;
+                } else {
+                    ErrorManager::addError("permission_error", "permission_missing");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+            }
+            
             // Attempt to acquire the provided data.
             $idsJson = filter_input(INPUT_GET, "ids");
             $emailsJson = filter_input(INPUT_GET, "emails");
@@ -133,6 +144,19 @@
                 return ActionState::DENIED;
             }
             
+            // Assess if permissions needed are held by the user.
+            if (!$this->eventManager->trigger("preExecutePost", $this)) {
+                // TODO(Matthew): Should we be treating non-logged in people differently?
+                //                Perhaps separate admin create and public create?
+                if (!Visitor::getInstance()->isLoggedIn) {
+                    return ActionState::DENIED_NOT_LOGGED_IN;
+                } else {
+                    ErrorManager::addError("permission_error", "permission_missing");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+            }
+            
             // Acquire the sent data, sanitised appropriately.
             $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
             $username = filter_input(INPUT_POST, "username", FILTER_SANITIZE_STRING);
@@ -176,6 +200,18 @@
             if (!$this->dataProvided($dataProvided, INPUT_GET)) {
                 $this->prepareExit();
                 return ActionState::DENIED;
+            }
+            
+            // Asses if permissions needed are held by the user.
+            if (!$this->eventManager->trigger("preExecuteDelete", $this)) {
+                if (!Visitor::getInstance()->isLoggedIn) {
+                    return ActionState::DENIED_NOT_LOGGED_IN;
+                } else {
+                    // TODO(Matthew): How to delete own account?
+                    ErrorManager::addError("permission_error", "permission_missing");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
             }
             
             // Acquire the sent data, sanitised appropriately.
@@ -222,9 +258,9 @@
             // Acquire the ID, sanitised appropriately.
             $id = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
             
-            // Assess if rights needed are held by the user.
-            $isAdmin = $this->eventManager->trigger("preExecutePut", $this);
-            if (!$isAdmin) {
+            // Assess if permissions needed are held by the user.
+            if (!$this->eventManager->trigger("preExecutePut", $this)) {
+                // If not logged in, or not the same user as to be edited, fail due to missing permissions.
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else if (Visitor::getInstance()->id != $id) {
