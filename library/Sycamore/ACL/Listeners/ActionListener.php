@@ -53,7 +53,21 @@
                     return true;
                 }
                 
+                // Get associated ACL groups.
+                $aclGroupActionMaps = $acl->getACLGroupActionMapsByActionId($action->id);
                 
+                // Check if any ACL groups deny access, or if at least one allows otherwise.
+                $allowed = false;
+                foreach ($aclGroupActionMaps as $aclGroupActionMap) {
+                    if ($acl->userHasACLGroup(Visitor::getInstance()->id, $aclGroupActionMap->groupId)) {
+                        if ($aclGroupActionMap->state < 0) {
+                            return false;
+                        } else if ($aclGroupActionMap->state > 0) {
+                            $allowed = true;
+                        }
+                    }
+                }
+                return $allowed;
             });
         }
     }

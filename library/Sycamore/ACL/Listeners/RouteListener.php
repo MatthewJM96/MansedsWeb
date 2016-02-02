@@ -61,7 +61,7 @@
                 // Get associated ACL groups.
                 $aclGroupRouteMaps = $acl->getACLGroupRouteMapsByRouteId($route->id);
                 
-                // Check if any acl groups deny access, or if at least one allows otherwise.
+                // Check if any ACL groups deny access, or if at least one allows otherwise.
                 $allowed = false;
                 foreach ($aclGroupRouteMaps as $aclGroupRouteMap) {
                     if ($acl->userHasACLGroup(Visitor::getInstance()->id, $aclGroupRouteMap->groupId)) {

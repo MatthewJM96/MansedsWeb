@@ -71,6 +71,19 @@
         }
         
         /**
+         * Gets the collection of maps that map ACL groups to the give action ID.
+         * 
+         * @param int $actionId
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getACLGroupActionMapsByRouteId($actionId)
+        {
+            $aclGroupActionMapTable = TableCache::getTableFromCache("ACLGroupActionMapTable");
+            return $aclGroupActionMapTable->getByActionId($actionId);
+        }
+        
+        /**
          * Assesses if the given user is a member of the given ACL group.
          * 
          * @param int $userId
