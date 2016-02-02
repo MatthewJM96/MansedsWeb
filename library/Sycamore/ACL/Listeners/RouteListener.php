@@ -21,6 +21,7 @@
     
     use Sycamore\Application;
     use Sycamore\ACL\ListenerInterface;
+    use Sycamore\User\Verify;
     use Sycamore\Visitor;
     
     use Zend\EventManager\EventInterface;
@@ -32,8 +33,16 @@
                 // Stop propogation - we want last say!
                 $event->stopPropogation();
                 
-                // Get route.
+                // Get route and request.
                 $route = $event->getParam("route");
+                
+                // If API request, check for appropriate auth token.
+                if (substr($route->path, 1, 3) == "api") {
+                    $authToken = filter_input(INPUT_COOKIE, "AuthToken");
+                    if (!$authToken || !Verify::verify($authToken, $route->path)) {
+                        return false;
+                    }
+                }
                 
                 // If visitor is not logged in, then only allow open routes.
                 if (!Visitor::getInstance()->isLoggedIn) {
