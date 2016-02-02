@@ -24,6 +24,7 @@
     class Action extends Row
     {
         // Admin token required:
+        public $name;
         public $description;
         public $open;
         // Uneditable in API:
