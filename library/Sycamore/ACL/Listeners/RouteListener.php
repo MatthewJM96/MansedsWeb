@@ -36,6 +36,7 @@
                 // Get route and request.
                 $route = $event->getParam("route");
                 
+                // TODO(Matthew): Consider how to open up to other websites integrating into API.
                 // If API request, check for appropriate auth token.
                 if (substr($route->path, 1, 3) == "api") {
                     $authToken = filter_input(INPUT_COOKIE, "AuthToken");
