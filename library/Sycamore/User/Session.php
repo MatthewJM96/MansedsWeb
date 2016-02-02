@@ -68,6 +68,7 @@
          * Acquires a user session, if it exists.
          *
          * @return int|array - The token private claim contents on success, else:
+         *                       0 for no SLIS set.
          *                      -1 for invalid JWT.
          *                      -2 for invalid JWT due to bad signature.
          *                      -3 for JWT used before nbf or iat.
