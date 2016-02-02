@@ -22,6 +22,7 @@
     use Sycamore\ErrorManager;
     use Sycamore\Controller\Controller;
     use Sycamore\Model\NewsletterSubscriber;
+    use Sycamore\Utils\ActionState;
     use Sycamore\Utils\APIData;
     use Sycamore\Utils\TableCache;
     
@@ -38,6 +39,17 @@
          */
         public function getAction()
         {
+            // Assess if permissions needed are held by the user.
+            if (!$this->eventManager->trigger("preExecuteGet", $this)) {
+                if (!Visitor::getInstance()->isLoggedIn) {
+                    return ActionState::DENIED_NOT_LOGGED_IN;
+                } else {
+                    ErrorManager::addError("permission_error", "permission_missing");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+            }
+            
             // Attempt to acquire the provided data.
             $emailsJson = filter_input(INPUT_GET, "emails");
             
@@ -54,7 +66,7 @@
                 if (!is_array($emails)) {
                     ErrorManager::addError("emails_error", "invalid_emails_filter_object");
                     $this->prepareExit();
-                    return false;
+                    return ActionState::DENIED;
                 }
                 
                 // Ascertain each email is valid in type and format.
@@ -62,7 +74,7 @@
                     if (!is_string($email) || filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         ErrorManager::addError("emails_error", "invalid_email_format");
                         $this->prepareExit();
-                        return false;
+                        return ActionState::DENIED;
                     }
                 }
                 $result = $newsletterSubscriberTable->getByEmails($emails);
@@ -71,7 +83,7 @@
             // Send the client the fetched newsletter subscribers.
             $this->response->setResponseCode(200)->send();
             $this->renderer->render(APIData::encode(array("data" => $result)));
-            return true;
+            return ActionState::SUCCESS;
         }
         
         /**
@@ -89,7 +101,20 @@
             );
             if (!$this->dataProvided($dataProvided, INPUT_POST)) {
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
+            }
+            
+            // Assess if permissions needed are held by the user.
+            if (!$this->eventManager->trigger("preExecutePost", $this)) {
+                // TODO(Matthew): Should we be treating non-logged in people differently?
+                //                Perhaps separate admin create and public create?
+                if (!Visitor::getInstance()->isLoggedIn) {
+                    return ActionState::DENIED_NOT_LOGGED_IN;
+                } else {
+                    ErrorManager::addError("permission_error", "permission_missing");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
             }
             
             // Acquire the sent data, sanitised appropriately.
@@ -100,7 +125,7 @@
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 ErrorManager::addError("email_error", "invalid_email_format");
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
             }
             
             // Grab the newsletter subscriber table.
@@ -110,7 +135,7 @@
             if (!$newsletterSubscriberTable->isEmailUnique($email)) {
                 ErrorManager::addError("email_error", "email_already_subscribed_to_newsletter");
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
             }
             
             // Construct new newsletter subscriber.
@@ -123,8 +148,7 @@
             
             // Let client know newsletter subscription creation was successful.
             $this->response->setResponseCode(200)->send();
-            $this->renderer->render();
-            return true;
+            return ActionState::SUCCESS;
         }
         
         /**
@@ -142,9 +166,21 @@
             if (!$deleteKey) {
                 ErrorManager::addError("newsletter_subscriber_delete_key_error", "missing_newsletter_subscriber_delete_key");
                 $this->prepareExit();
-                return false;
+                return ActionState::DENIED;
             }
             
+            // Asses if permissions needed are held by the user.
+            if (!$this->eventManager->trigger("preExecuteDelete", $this)) {
+                if (!Visitor::getInstance()->isLoggedIn) {
+                    return ActionState::DENIED_NOT_LOGGED_IN;
+                } else {
+                    // TODO(Matthew): How to delete own account?
+                    ErrorManager::addError("permission_error", "permission_missing");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+            }
+                        
             // Get newsletter subscriber with provided delete key.
             $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriberTable");
             $newsletterSubscriber = $newsletterSubscriberTable->getByDeleteKey($deleteKey);
@@ -153,7 +189,7 @@
             if (!$newsletterSubscriber) {
                 ErrorManager::addError("newsletter_subscriber_delete_key_error", "invalid_newsletter_subscriber_delete_key");
                 $this->prepareExit();
-                return false;
+                    return ActionState::DENIED;
             }
             
             // Delete subscriber.
@@ -161,7 +197,6 @@
             
             // Let client know newsletter subscription deletion was successful.
             $this->response->setResponseCode(200)->send();
-            $this->renderer->render();
-            return true;
+            return ActionState::SUCCESS;
         }
     }
