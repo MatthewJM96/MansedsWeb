@@ -39,7 +39,7 @@
                 // TODO(Matthew): Consider how to open up to other websites integrating into API.
                 // If API request, check for appropriate auth token.
                 if (substr($route->path, 1, 3) == "api") {
-                    $authToken = filter_input(INPUT_COOKIE, "AuthToken");
+                    $authToken = filter_input(INPUT_GET, "auth");
                     if (!$authToken || !Verify::verify($authToken, $route->path)) {
                         return false;
                     }
