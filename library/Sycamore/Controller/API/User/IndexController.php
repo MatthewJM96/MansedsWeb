@@ -202,7 +202,7 @@
                 return ActionState::DENIED;
             }
             
-            // Asses if permissions needed are held by the user.
+            // Assess if permissions needed are held by the user.
             if (!$this->eventManager->trigger("preExecuteDelete", $this)) {
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
