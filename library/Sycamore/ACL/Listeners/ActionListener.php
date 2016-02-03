@@ -21,6 +21,7 @@
     
     use Sycamore\Application;
     use Sycamore\ACL\ListenerInterface;
+    use Sycamore\Enums\PermissionState;
     use Sycamore\Utils\TableCache;
     use Sycamore\Visitor;
     
@@ -60,9 +61,9 @@
                 $allowed = false;
                 foreach ($aclGroupActionMaps as $aclGroupActionMap) {
                     if ($acl->userHasACLGroup(Visitor::getInstance()->id, $aclGroupActionMap->groupId)) {
-                        if ($aclGroupActionMap->state < 0) {
+                        if ($aclGroupActionMap->state == PermissionState::DENIED) {
                             return false;
-                        } else if ($aclGroupActionMap->state > 0) {
+                        } else if ($aclGroupActionMap->state == PermissionState::ALLOWED) {
                             $allowed = true;
                         }
                     }

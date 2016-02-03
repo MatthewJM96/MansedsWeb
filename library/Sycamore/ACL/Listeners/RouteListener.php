@@ -21,6 +21,7 @@
     
     use Sycamore\Application;
     use Sycamore\ACL\ListenerInterface;
+    use Sycamore\Enums\PermissionState;
     use Sycamore\User\Verify;
     use Sycamore\Visitor;
     
@@ -65,9 +66,9 @@
                 $allowed = false;
                 foreach ($aclGroupRouteMaps as $aclGroupRouteMap) {
                     if ($acl->userHasACLGroup(Visitor::getInstance()->id, $aclGroupRouteMap->groupId)) {
-                        if ($aclGroupRouteMap->state < 0) {
+                        if ($aclGroupRouteMap->state == PermissionState::DENIED) {
                             return false;
-                        } else if ($aclGroupRouteMap->state > 0) {
+                        } else if ($aclGroupRouteMap->state == PermissionState::ALLOWED) {
                             $allowed = true;
                         }
                     }
