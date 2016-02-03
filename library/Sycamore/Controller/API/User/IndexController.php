@@ -259,7 +259,8 @@
             $id = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
             
             // Assess if permissions needed are held by the user.
-            if (!$this->eventManager->trigger("preExecutePut", $this)) {
+            $isAdmin = $this->eventManager->trigger("preExecutePut", $this);
+            if (!$isAdmin) {
                 // If not logged in, or not the same user as to be edited, fail due to missing permissions.
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
@@ -291,14 +292,16 @@
             // Check new and old passwords are valid if a new password is provided.
             if ($newPassword) {
                 UserValidation::passwordStrengthCheck($newPassword);
-                if (!$password) {
-                    ErrorManager::addError("password_error", "old_password_missing");
-                } else if (UserSecurity::verifyPassword($password, $user->password)) {
-                    ErrorManager::addError("password_error", "old_password_incorrect");
-                }
-                if (ErrorManager::hasError()) {
-                    $this->prepareExit();
-                    return ActionState::DENIED;
+                if (!$isAdmin) {
+                    if (!$password) {
+                        ErrorManager::addError("password_error", "old_password_missing");
+                    } else if (UserSecurity::verifyPassword($password, $user->password)) {
+                        ErrorManager::addError("password_error", "old_password_incorrect");
+                    }
+                    if (ErrorManager::hasError()) {
+                        $this->prepareExit();
+                        return ActionState::DENIED;
+                    }
                 }
                 $user->password = UserSecurity::hashPassword($newPassword);
             }
