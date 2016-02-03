@@ -25,7 +25,7 @@
     use Sycamore\Response;
     use Sycamore\Router;
     use Sycamore\Visitor;
-    use Sycamore\Utils\ActionState;
+    use Sycamore\Enums\ActionState;
     use Sycamore\Utils\TableCache;
     
     use Zend\EventManager\EventManager;

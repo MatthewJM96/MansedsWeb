@@ -19,10 +19,10 @@
 
     namespace Sycamore;
     
-    use Sycamore\Model\Route;
     use Sycamore\Request;
     use Sycamore\Response;
-    use Sycamore\Utils\ActionState;
+    use Sycamore\Enums\ActionState;
+    use Sycamore\Row\Route;
 
     /**
      * Sycamore dispatcher class.

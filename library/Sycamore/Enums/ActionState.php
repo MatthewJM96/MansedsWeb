@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    namespace Sycamore\Utils;
+    namespace Sycamore\Enums;
     
     class ActionState
     {
@@ -26,3 +26,4 @@
         const DENIED = -1;
         const FAILED = -2;
     }
+    

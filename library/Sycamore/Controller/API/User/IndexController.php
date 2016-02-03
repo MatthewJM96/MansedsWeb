@@ -21,9 +21,9 @@
     
     use Sycamore\ErrorManager;
     use Sycamore\Controller\Controller;
+    use Sycamore\Enums\ActionState;
     use Sycamore\Model\User;
     use Sycamore\Utils\APIData;
-    use Sycamore\Utils\ActionState;
     use Sycamore\Utils\TableCache;
     use Sycamore\User\Validation as UserValidation;
     use Sycamore\User\Security as UserSecurity;

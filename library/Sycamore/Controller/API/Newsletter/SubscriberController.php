@@ -21,8 +21,8 @@
     
     use Sycamore\ErrorManager;
     use Sycamore\Controller\Controller;
+    use Sycamore\Enums\ActionState;
     use Sycamore\Model\NewsletterSubscriber;
-    use Sycamore\Utils\ActionState;
     use Sycamore\Utils\APIData;
     use Sycamore\Utils\TableCache;
     
