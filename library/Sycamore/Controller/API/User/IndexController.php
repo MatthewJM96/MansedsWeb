@@ -259,8 +259,7 @@
             $id = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
             
             // Assess if permissions needed are held by the user.
-            $isAdmin = $this->eventManager->trigger("preExecutePut", $this);
-            if (!$isAdmin) {
+            if (!$this->eventManager->trigger("preExecutePut", $this)) {
                 // If not logged in, or not the same user as to be edited, fail due to missing permissions.
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
@@ -292,7 +291,7 @@
             // Check new and old passwords are valid if a new password is provided.
             if ($newPassword) {
                 UserValidation::passwordStrengthCheck($newPassword);
-                if (!$isAdmin) {
+                if (Visitor::getInstance()->id == $id) {
                     if (!$password) {
                         ErrorManager::addError("password_error", "old_password_missing");
                     } else if (UserSecurity::verifyPassword($password, $user->password)) {
