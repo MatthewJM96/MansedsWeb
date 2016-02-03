@@ -189,7 +189,7 @@
             if (!$newsletterSubscriber) {
                 ErrorManager::addError("newsletter_subscriber_delete_key_error", "invalid_newsletter_subscriber_delete_key");
                 $this->prepareExit();
-                    return ActionState::DENIED;
+                return ActionState::DENIED;
             }
             
             // Delete subscriber.
