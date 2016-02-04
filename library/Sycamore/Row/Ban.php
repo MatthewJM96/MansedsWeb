@@ -24,11 +24,12 @@
     class Ban extends Row
     {
         // Admin Token Required:
-        ///* 1 = active, 0 = inactive, 2 = denied
+        ///* 1 = active, 0 = lifted
         public $status;
         // Uneditable in API:
         public $id;
         public $creationTime;
+        public $expiryTime;
         public $bannedId;
         public $creatorId;
     }
