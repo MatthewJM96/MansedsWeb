@@ -51,22 +51,21 @@
             }
             
             // Attempt to acquire the provided data.
-            $idsJson = filter_input(INPUT_GET, "ids");
-            $emailsJson = filter_input(INPUT_GET, "emails");
-            $usernamesJson = filter_input(INPUT_GET, "usernames");
+            $dataJson = filter_input(INPUT_GET, "data");
             
-            // Grab user table.
+            // Grab the user table.
             $userTable = TableCache::getTableFromCache("UserTable");
             
-            // Fetch users with given values, or alternatively 
+            // Fetch users with given values, or all users if no values provided. 
             $result = null;
-            if (!$idsJson && !$emailsJson && !$usernamesJson) {
+            if (!$dataJson) {
                 $result = $userTable->fetchAll();
             } else {
-                // Fetch only subscribers matching given data.
-                $ids = APIData::decode($idsJson);
-                $emails = APIData::decode($emailsJson);
-                $usernames = APIData::decode($usernamesJson);
+                // Fetch only users matching given data.
+                $data = APIData::decode($dataJson);
+                $ids = ($data["ids"] ?: array());
+                $emails = ($data["emails"] ?: array());
+                $usernames = ($data["usernames"] ?: array());
                 
                 // Ensure all data provided is correctly batched in arrays.
                 if (!is_array($ids) || !is_array($emails) || !is_array($usernames)) {
@@ -74,30 +73,6 @@
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
-                
-                // Ascertain each ID, email and username is valid in type and format.
-                foreach ($ids as $id) {
-                    if (!is_integer($id)) {
-                        ErrorManager::addError("ids_error", "invalid_user_id");
-                    }
-                }
-                foreach ($emails as $email) {
-                    if (!is_string($email) || filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        ErrorManager::addError("emails_error", "invalid_email_format");
-                    }
-                }
-                foreach ($usernames as $username) {
-                    if (!is_string($username)) {
-                        ErrorManager::addError("usernames_error", "invalid_username");
-                    }
-                }
-                if (ErrorManager::hasError()) {
-                    $this->prepareExit();
-                    return ActionState::DENIED;
-                }
-                
-                // Grab the user table.
-                $userTable = TableCache::getTableFromCache("UserTable");
                 
                 // Fetch matching users, storing with ID as key for simple overwrite to avoid duplicates.
                 $result = array();
