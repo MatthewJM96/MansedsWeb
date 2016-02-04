@@ -22,6 +22,5 @@
     class ActionState
     {
         const ACTIVE = 1;
-        const INACTIVE = 0;
-        const DENIED = -1;
+        const LIFTED = 0;
     }
