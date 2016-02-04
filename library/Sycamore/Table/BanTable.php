@@ -39,9 +39,19 @@
             return $this->getByKey("creatorId", $id, $forceDbFetch);
         }
         
+        public function getByCreators($ids, $forceDbFetch = false)
+        {
+            return $this->getByKeyInCollection("creatorId", $id, $forceDbFetch);
+        }
+        
         public function getByBanned($id, $forceDbFetch = false)
         {
             return $this->getByUniqueKey("bannedId", $id, $forceDbFetch);
+        }
+        
+        public function getByBanneds($ids, $forceDbFetch = false)
+        {
+            return $this->getByKeyInCollection("bannedId", $ids, $forceDbFetch);
         }
         
         public function getByState($state, $forceDbFetch = false)
@@ -62,6 +72,21 @@
         public function getByCreationTimeRange($creationTimeMin, $creationTimeMax, $forceDbFetch = false)
         {
             return $this->getByKeyBetween("creationTime", $creationTimeMin, $creationTimeMax, $forceDbFetch);
+        }
+        
+        public function getByExpiryTimeMin($expiryTimeMin, $forceDbFetch = false)
+        {
+            return $this->getByKeyGreaterThanOrEqualTo("expiryTime", $expiryTimeMin, $forceDbFetch);
+        }
+        
+        public function getByExpiryTimeMax($expiryTimeMax, $forceDbFetch = false)
+        {
+            return $this->getByKeyLessThanOrEqualTo("expiryTime", $expiryTimeMax, $forceDbFetch);
+        }
+        
+        public function getByExpiryTimeRange($expiryTimeMin, $expiryTimeMax, $forceDbFetch = false)
+        {
+            return $this->getByKeyBetween("expiryTime", $expiryTimeMin, $expiryTimeMax, $forceDbFetch);
         }
     }
     
