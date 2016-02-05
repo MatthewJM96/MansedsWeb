@@ -58,52 +58,50 @@
             
             // Fetch bans with given values, or all bans if no values provided.
             $result = null;
-            if (!$data) {
+            if (!$dataJson) {
                 $result = $banTable->fetchAll();
             } else {
-                //TODO(Matthew): Change this to have default to NULL and check each case-by-case in if around fetch and foreach.
-                
                 // Fetch only bans matching given data.
                 $data = APIData::decode($dataJson);
-                $state = ($data["state"] ?: -1);
-                $banIds = ($data["banIds"] ?: array());
-                $creatorIds = ($data["creatorIds"] ?: array());
-                $bannedIds = ($data["bannedIds"] ?: array());
-                $creationTimeMin = ($data["creationTimeMin"] ?: -1);
-                $creationTimeMax = ($data["creationTimeMax"] ?: -1);
-                $expiryTimeMin = ($data["expiryTimeMin"] ?: -1);
-                $expiryTimeMax = ($data["expiryTimeMax"] ?: -1);
+                $state           = (isset($data["state"])           ? $data["state"]           : NULL);
+                $banIds          = (isset($data["banIds"])          ? $data["banIds"]          : NULL);
+                $creatorIds      = (isset($data["creatorIds"])      ? $data["creatorIds"]      : NULL);
+                $bannedIds       = (isset($data["bannedIds"])       ? $data["bannedIds"]       : NULL);
+                $creationTimeMin = (isset($data["creationTimeMin"]) ? $data["creationTimeMin"] : NULL);
+                $creationTimeMax = (isset($data["creationTimeMax"]) ? $data["creationTimeMax"] : NULL);
+                $expiryTimeMin   = (isset($data["expiryTimeMin"])   ? $data["expiryTimeMin"]   : NULL);
+                $expiryTimeMax   = (isset($data["expiryTimeMax"])   ? $data["expiryTimeMax"]   : NULL);
                 
                 // Ensure all data provided is expected types.
-                if (!is_int($state) || !is_array($banIds) || !is_array($creatorIds) || !is_array($bannedIds) ||
-                        !is_int($creationTimeMin) || !is_int($creationTimeMax) || !is_int($expiryTimeMin) || !is_int($expiryTimeMax)) {
-                    ErrorManager::addError("data_error", "invalid_data_filter_object");
-                    $this->prepareExit();
-                    return ActionState::DENIED;
-                }
+//                if (!is_int($state) || !is_array($banIds) || !is_array($creatorIds) || !is_array($bannedIds) ||
+//                        !is_int($creationTimeMin) || !is_int($creationTimeMax) || !is_int($expiryTimeMin) || !is_int($expiryTimeMax)) {
+//                    ErrorManager::addError("data_error", "invalid_data_filter_object");
+//                    $this->prepareExit();
+//                    return ActionState::DENIED;
+//                }
                 
                 // Fetch matching bans, storing with ID as key for simple overwrite to avoid duplicates.
                 $result = array();
-                $bansByState = $banTable->getByState($state);
-                if ($bansByState instanceof \Iterator) {
+                if (!is_null($state)) {
+                    $bansByState = $banTable->getByState($state);
                     foreach ($bansByState as $ban) {
                         $result[$ban->id] = $ban;
                     }
                 }
-                $bansByBanIds = $banTable->getByIds($banIds);
-                if ($bansByBanIds instanceof \Iterator) {
+                if (!is_null($banIds)) {
+                    $bansByBanIds = $banTable->getByIds($banIds);
                     foreach ($bansByBanIds as $ban) {
                         $result[$ban->id] = $ban;
                     }
                 }
-                $bansByCreatorIds = $banTable->getByCreators($creatorIds);
-                if ($bansByCreatorIds instanceof \Iterator) {
+                if (!is_null($creatorIds)) {
+                    $bansByCreatorIds = $banTable->getByCreators($creatorIds);
                     foreach ($bansByCreatorIds as $ban) {
                         $result[$ban->id] = $ban;
                     }
                 }
-                $bansByBannedIds = $banTable->getByState($bannedIds);
-                if ($bansByBannedIds instanceof \Iterator) {
+                if (!is_null($bannedIds)) {
+                    $bansByBannedIds = $banTable->getByState($bannedIds);
                     foreach ($bansByBannedIds as $ban) {
                         $result[$ban->id] = $ban;
                     }
@@ -116,10 +114,8 @@
                 } else if ($creationTimeMax > 0) {
                     $bansByCreationTime = $banTable->getByCreationTimeMax($creationTimeMax);
                 }
-                if ($bansByCreationTime instanceof \Iterator) {
-                    foreach ($bansByCreationTime as $ban) {
-                        $result[$ban->id] = $ban;
-                    }
+                foreach ($bansByCreationTime as $ban) {
+                    $result[$ban->id] = $ban;
                 }
                 $bansByExpiryTime = array();
                 if ($expiryTimeMin > 0 && $expiryTimeMax > 0) {
@@ -129,10 +125,8 @@
                 } else if ($expiryTimeMax > 0) {
                     $bansByExpiryTime = $banTable->getByExpiryTimeMax($expiryTimeMax);
                 }
-                if ($bansByExpiryTime instanceof \Iterator) {
-                    foreach ($bansByExpiryTime as $ban) {
-                        $result[$ban->id] = $ban;
-                    }
+                foreach ($bansByExpiryTime as $ban) {
+                    $result[$ban->id] = $ban;
                 }
                 
                 // Send the client the fetched bans.
