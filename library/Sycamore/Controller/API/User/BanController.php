@@ -128,17 +128,19 @@
                 foreach ($bansByExpiryTime as $ban) {
                     $result[$ban->id] = $ban;
                 }
-                
-                if (empty($result)) {
-                    ErrorManager::addError("data_error", "invalid_data_filter_object");
-                    $this->prepareExit();
-                    return ActionState::DENIED;
-                }
-                
-                // Send the client the fetched bans.
-                $this->response->setResponseCode(200)->send();
-                $this->renderer->render(APIData::encode(array("data" => $result)));
-                return ActionState::SUCCESS;
             }
+                
+            // TODO(Matthew): Could be no entries in a table?
+            // If result is bad, input must have been bad.
+            if (is_null($result) || empty($result)) {
+                ErrorManager::addError("data_error", "invalid_data_filter_object");
+                $this->prepareExit();
+                return ActionState::DENIED;
+            }
+
+            // Send the client the fetched bans.
+            $this->response->setResponseCode(200)->send();
+            $this->renderer->render(APIData::encode(array("data" => $result)));
+            return ActionState::SUCCESS;
         }
     }
