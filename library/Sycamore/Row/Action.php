@@ -26,6 +26,7 @@
         // Admin token required:
         public $name;
         public $description;
+        public $semiOpen;
         public $open;
         // Uneditable in API:
         public $id;

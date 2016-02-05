@@ -41,12 +41,14 @@
                 $actionTable = TableCache::getTableFromCache("ActionTable");
                 $action = $actionTable->getByKey($actionKey);
                 
-                // If visitor is not logged in, then only allow open routes.
+                // If visitor is not logged in, then only allow semi-open and open routes. If they are logged in, only allow open routes.
                 if (!Visitor::getInstance()->isLoggedIn) {
-                    if ($action->open) {
+                    if ($action->semiOpen || $action->open) {
                         return true;
                     }
                     return false;
+                } else if ($action->open) {
+                    return true;
                 }
                 
                 // If visitor is a super user, then allow.
