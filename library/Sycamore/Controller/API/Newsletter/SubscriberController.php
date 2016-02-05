@@ -51,33 +51,41 @@
             }
             
             // Attempt to acquire the provided data.
-            $emailsJson = filter_input(INPUT_GET, "emails");
+            $dataJson = filter_input(INPUT_GET, "data");
             
             $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriberTable");
             $result = null;
-            if (!$emailsJson) {
+            if (!$dataJson) {
                 // Fetch all subscribers as no filter provided.
                 $result = $newsletterSubscriberTable->fetchAll();
             } else {
                 // Fetch only subscribers matching given emails.
-                $emails = APIData::decode($emailsJson);
+                $data = APIData::decode($dataJson);
+                $emails = (isset($data["emails"]) ? $data["emails"] : NULL);
                 
                 // If emails weren't provided as an array, fail.
-                if (!is_array($emails)) {
-                    ErrorManager::addError("emails_error", "invalid_emails_filter_object");
-                    $this->prepareExit();
-                    return ActionState::DENIED;
-                }
+//                if (!is_array($emails)) {
+//                    ErrorManager::addError("emails_error", "invalid_emails_filter_object");
+//                    $this->prepareExit();
+//                    return ActionState::DENIED;
+//                }
                 
                 // Ascertain each email is valid in type and format.
-                foreach ($emails as $email) {
-                    if (!is_string($email) || filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        ErrorManager::addError("emails_error", "invalid_email_format");
-                        $this->prepareExit();
-                        return ActionState::DENIED;
+                $result = array();
+                if (!is_null($emails)) {
+                    $subscribersByEmails = $newsletterSubscriberTable->getByEmails($emails);
+                    foreach ($subscribersByEmails as $subscriber) {
+                        $result[$subscriber->id] = $subscriber;
                     }
                 }
-                $result = $newsletterSubscriberTable->getByEmails($emails);
+            }
+            
+            // TODO(Matthew): Could be no entries in a table?
+            // If result is bad, input must have been bad.
+            if (is_null($result) || empty($result)) {
+                ErrorManager::addError("data_error", "invalid_data_filter_object");
+                $this->prepareExit();
+                return ActionState::DENIED;
             }
             
             // Send the client the fetched newsletter subscribers.
