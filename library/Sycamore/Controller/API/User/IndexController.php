@@ -63,36 +63,42 @@
             } else {
                 // Fetch only users matching given data.
                 $data = APIData::decode($dataJson);
-                $ids = ($data["ids"] ?: array());
-                $emails = ($data["emails"] ?: array());
-                $usernames = ($data["usernames"] ?: array());
+                $ids        = (isset($data["ids"])       ? $data["ids"]       : NULL);
+                $emails     = (isset($data["emails"])    ? $data["emails"]    : NULL);
+                $usernames  = (isset($data["usernames"]) ? $data["usernames"] : NULL);
                 
                 // Ensure all data provided is correctly batched in arrays.
-                if (!is_array($ids) || !is_array($emails) || !is_array($usernames)) {
-                    ErrorManager::addError("data_error", "invalid_data_filter_object");
-                    $this->prepareExit();
-                    return ActionState::DENIED;
-                }
+//                if (!is_array($ids) || !is_array($emails) || !is_array($usernames)) {
+//                    ErrorManager::addError("data_error", "invalid_data_filter_object");
+//                    $this->prepareExit();
+//                    return ActionState::DENIED;
+//                }
                 
                 // Fetch matching users, storing with ID as key for simple overwrite to avoid duplicates.
                 $result = array();
-                $usersByIds = $userTable->getByIds($ids);
-                if ($usersByIds instanceof \Iterator) {
+                if (!is_null($ids)) {
+                    $usersByIds = $userTable->getByIds($ids);
                     foreach ($usersByIds as $user) {
                         $result[$user->id] = $user;
                     }
                 }
-                $usersByUsernames = $userTable->getByUsernames($usernames);
-                if ($usersByUsernames instanceof \Iterator) {
+                if (!is_null($usernames)) {
+                    $usersByUsernames = $userTable->getByUsernames($usernames);
                     foreach ($usersByUsernames as $user) {
                         $result[$user->id] = $user;
                     }
                 }
-                $usersByEmails = $userTable->getByEmails($emails);
-                if ($usersByEmails instanceof \Iterator) {
+                if (!is_null($emails)) {
+                    $usersByEmails = $userTable->getByEmails($emails);
                     foreach ($usersByEmails as $user) {
                         $result[$user->id] = $user;
                     }
+                }
+                
+                if (empty($result)) {
+                    ErrorManager::addError("data_error", "invalid_data_filter_object");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
                 }
                 
                 // Send the client the fetched users.
