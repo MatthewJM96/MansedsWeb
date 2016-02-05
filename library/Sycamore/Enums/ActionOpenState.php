@@ -1,7 +1,7 @@
 <?php
 
 /* 
- * Copyright (C) 2016 Matthew Marshall
+ * Copyright (C) 2016 Matthew
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,17 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    namespace Sycamore\Row;
+    namespace Sycamore\Enums;
     
-    use Sycamore\Row\Row;
-    
-    class Action extends Row
+    class ActionOpenState
     {
-        // Admin token required:
-        public $name;
-        public $description;
-        public $openState;
-        // Uneditable in API:
-        public $id;
-        public $key;
+        const OPEN = 2;
+        const SEMIOPEN = 1;
+        const CLOSED = 0;
     }

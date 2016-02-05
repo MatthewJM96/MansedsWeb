@@ -21,6 +21,7 @@
     
     use Sycamore\Application;
     use Sycamore\ACL\ListenerInterface;
+    use Sycamore\Enums\ActionOpenState;
     use Sycamore\Enums\PermissionState;
     use Sycamore\Utils\TableCache;
     use Sycamore\Visitor;
@@ -41,14 +42,16 @@
                 $actionTable = TableCache::getTableFromCache("ActionTable");
                 $action = $actionTable->getByKey($actionKey);
                 
-                // If visitor is not logged in, then only allow semi-open and open routes. If they are logged in, only allow open routes.
+                // If action open state is OPEN, allow execution.
+                if ($action->openState == ActionOpenState::OPEN) {
+                    return true;
+                }
+                // If use is not logged in and action open state is SEMIOPEN, allow execution. Otherwise for logged out visitor, deny.
                 if (!Visitor::getInstance()->isLoggedIn) {
-                    if ($action->semiOpen || $action->open) {
+                    if ($action->openState == ActionOpenState::SEMIOPEN) {
                         return true;
                     }
                     return false;
-                } else if ($action->open) {
-                    return true;
                 }
                 
                 // If visitor is a super user, then allow.
