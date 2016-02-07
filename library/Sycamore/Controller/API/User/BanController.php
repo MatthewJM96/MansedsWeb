@@ -20,10 +20,10 @@
     namespace Sycamore\Controller\API\User;
     
     use Sycamore\ErrorManager;
+    use Sycamore\Visitor;
     use Sycamore\Controller\Controller;
     use Sycamore\Enums\ActionState;
     use Sycamore\Row\Ban;
-    use Sycamore\Row\User;
     use Sycamore\Utils\APIData;
     use Sycamore\Utils\TableCache;
     
@@ -123,4 +123,137 @@
             $this->renderer->render(APIData::encode(array("data" => $result)));
             return ActionState::SUCCESS;
         }
+        
+        /**
+         * Executes the creation process for creating a new ban entry.
+         * 
+         * @return boolean
+         */
+        public function postAction()
+        {
+            // Ensure all data needed is posted to the server.
+            $dataProvided = array (
+                array ( "key" => "bannedId", "errorType" => "banned_id_error", "errorKey" => "missing_banned_id" ),
+                array ( "key" => "expiryTime",  "errorType" => "expiry_time_error",  "errorKey" => "missing_expiry_time" )
+            );
+            if (!$this->dataProvided($dataProvided, INPUT_POST)) {
+                $this->prepareExit();
+                return ActionState::DENIED;
+            }
+            
+            // Assess if permissions needed are held by the user.
+            if (!$this->eventManager->trigger("preExecutePost", $this)) {
+                if (!Visitor::getInstance()->isLoggedIn) {
+                    return ActionState::DENIED_NOT_LOGGED_IN;
+                } else {
+                    ErrorManager::addError("permission_error", "permission_missing");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+            }
+            
+            // Acquire the sent data, sanitised appropriately.
+            $bannedId = filter_input(INPUT_POST, "bannedId", FILTER_SANITIZE_NUMBER_INT);
+            $expiryTime = filter_input(INPUT_POST, "expiryTime", FILTER_SANITIZE_NUMBER_INT);
+            
+            // Grab the user and ban tables.
+            $userTable = TableCache::getTableFromCache("UserTable");
+            $banTable = TableCache::getTableFromCache("BanTable");
+            
+            $bannedUser = $userTable->getById($bannedId);
+            if (!$bannedUser) {
+                ErrorManager::addError("banned_user_error", "banned_user_non_existent");
+                $this->prepareExit();
+                return ActionState::DENIED;
+            }
+            
+            // Update and save user state.
+            $bannedUser->banned = 1;
+            $userTable->save($bannedUser, $bannedUser->id);
+            
+            // Construct ban entry.
+            $ban = new Ban;
+            $ban->status = 1;
+            $ban->creationTime = time();
+            $ban->expiryTime = $expiryTime;
+            $ban->bannedId = $bannedId;
+            $ban->creatorId = Visitor::getInstance()->id;
+            
+            // Save new ban.
+            $banTable->save($ban);
+            
+            // Let client know newsletter subscription creation was successful.
+            $this->response->setResponseCode(200)->send();
+            return ActionState::SUCCESS;
+        }
+        
+        /**
+         * Executes the process of updating a ban entry.
+         * Only handles the following data points of a ban:
+         *  - Status
+         */
+        public function putAction()
+        {
+            // Ensure ID has been provided of the user object to be updated.
+            $dataProvided = array (
+                array ( "key" => "id", "filter" => FILTER_SANITIZE_NUMBER_INT, "errorType" => "ban_id_error", "errorKey" => "missing_ban_id" )
+            );
+            if (!$this->dataProvided($dataProvided, INPUT_GET)) {
+                $this->prepareExit();
+                return ActionState::DENIED;
+            }
+            
+            // Acquire the ID, sanitised appropriately.
+            $banId = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
+            
+            // Assess if permissions needed are held by the user.
+            if (!$this->eventManager->trigger("preExecutePut", $this)) {
+                // If not logged in, or not the same user as to be edited, fail due to missing permissions.
+                if (!Visitor::getInstance()->isLoggedIn) {
+                    return ActionState::DENIED_NOT_LOGGED_IN;
+                } else if (Visitor::getInstance()->id != $id) {
+                    ErrorManager::addError("permission_error", "permission_missing");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+            }
+            
+            // Grab the needed tables.
+            $banTable = TableCache::getTableFromCache("BanTable");
+            $userTable = TableCache::getTableFromCache("UserTable");
+            
+            // Get ban with given ban ID.
+            $ban = $banTable->getById($banId);
+            
+            // Handle invalid ban IDs.
+            if (!$ban) {
+                ErrorManager::addError("ban_id_error", "invalid_ban_id");
+                $this->prepareExit();
+                return ActionState::DENIED;
+            }
+            
+            // Get possible data points to update.
+            $state = filter_input(INPUT_GET, "state", FILTER_SANITIZE_NUMBER_INT);
+            
+            // Get banned user.
+            $user = $userTable->getById($ban->bannedId);
+            
+            if ($state != 0 || $state != 0) {
+                ErrorManager::addError("ban_state_error", "invalid_ban_state");
+                $this->prepareExit();
+                return ActionState::DENIED;
+            } else {
+                $user->banned = $state;
+                $ban->state = $state;
+                
+                // Save user and ban.
+                $userTable->save($user, $user->id);
+                $banTable->save($ban, $ban->id);
+            }
+            
+            // Let client know user update was successful.
+            $this->response->setResponseCode(200)->send();
+            return ActionState::SUCCESS;
+        }
     }
+    
