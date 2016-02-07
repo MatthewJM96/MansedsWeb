@@ -64,6 +64,19 @@
         }
         
         /**
+         * Get matching row objects with a creator of the given ID.
+         * 
+         * @param int $creatorId
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByCreator($creatorId, $forceDbFetch = false)
+        {
+            return $this->getByKey($creatorId, "creatorId", $forceDbFetch);
+        }
+        
+        /**
          * Get matching row objects with a minimum creation time matching that given.
          * 
          * @param int $creationTimeMin
@@ -104,12 +117,56 @@
         }
         
         /**
-         * Deletes the entry with the given id.
+         * Get matching row objects with most recent updator of the given ID.
          * 
-         * @param int $id
+         * @param int $updatorId
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
          */
-        public function deleteById($id) {
-            $this->tableGateway->delete(array("id" => (int) $id));
+        public function getByUpdator($updatorId, $forceDbFetch = false)
+        {
+            return $this->getByKey($updatorId, "updatorId", $forceDbFetch);
+        }
+        
+        /**
+         * Get matching row objects with a minimum update time matching that given.
+         * 
+         * @param int $updateTimeMin
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByUpdateTimeAfter($updateTimeMin, $forceDbFetch = false)
+        {
+            return $this->getByKeyGreaterThanOrEqualTo("updateTime", $updateTimeMin, $forceDbFetch);
+        }
+        
+        /**
+         * Get matching row objects with a maximum update time matching that given.
+         * 
+         * @param int $updateTimeMax
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByUpdateTimeBefore($updateTimeMax, $forceDbFetch = false)
+        {
+            return $this->getByKeyLessThanOrEqualTo("updateTime", $updateTimeMax, $forceDbFetch);
+        }
+        
+        /**
+         * Get matching row objects with a minimum and maximum update time matching those given.
+         * 
+         * @param int $updateTimeMin
+         * @param int $updateTimeMax
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByUpdateTimeRange($updateTimeMin, $updateTimeMax, $forceDbFetch = false)
+        {
+            return $this->getByKeyBetween("updateTime", $updateTimeMin, $updateTimeMax, $forceDbFetch);
         }
         
         /**
@@ -155,6 +212,15 @@
                 }
             }
             return true;
+        }
+        
+        /**
+         * Deletes the entry with the given id.
+         * 
+         * @param int $id
+         */
+        public function deleteById($id) {
+            $this->tableGateway->delete(array("id" => (int) $id));
         }
         
         /**
