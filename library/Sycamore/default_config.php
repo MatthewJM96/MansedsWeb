@@ -39,7 +39,18 @@
         ),
         "domain" => "example.com", // Domain of the application.
         "email" => array ( /* Email Details */
-            
+            "transport" => "smtp", // Which method to send emails via. SMTP reduces chances of email being treated as spam vs. Sendmail.
+            "smtpOptions" => array ( /* Transport Options */
+                "name" => "example.com", // The name of the SMTP server.
+                "host" => "127.0.0.1", // The host IP of the SMTP server.
+                "port" => 25, // Port to connect to. Usually 25 for insecure, 587 for TLS and 465 for SSL.
+                "connection" => array ( /* Connection Details */
+                    "class" => "smtp", // The method of connecting to the SMTP server. Options: "smtp", "plain", "login", and "crammd5"
+                    "username" => "", // Username of user on SMTP server.
+                    "password" => "", // Password of user on SMTP server.
+                    "ssl" => "", // SSL method to use.
+                )
+            )
         ),
         "language" => "en", // The language of the application.
         "security" => array ( /* Security Details */
