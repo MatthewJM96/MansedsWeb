@@ -97,29 +97,35 @@
         const DP_XOR = 2;
         
         /**
-         * Assesses if all the required data points were sent to the server.
+         * Assesses if all the required data points were sent to the server, and if so, fetches all data sent for use by the controller.
          * 
          * @return boolean
          */
-        protected function dataProvided($dataRequired, $inputStream, $operator = self::DP_AND)
+        protected function fetchData($dataRequired, $inputStream, $dataHolder, $operator = self::DP_AND)
         {
+            // Grab data from input stream.
+            $data = APIData::decode(filter_input($inputStream, "data"));
+            
+            // Check for each of the required data points.
             $missingNeededData = false;
             $hadEntry = false;
             foreach ($dataRequired as $detail) {
-                if (!filter_input($inputStream, $detail["key"], $detail["filter"] ?: FILTER_DEFAULT)) {
-                    if ($operator == self::DP_AND) {
-                        ErrorManager::addError($detail["errorType"], $detail["errorKey"]);
-                    }
+                if (!$data[$detail["key"]] && $operator == self::DP_AND) {
+                    ErrorManager::addError($detail["errorType"], $detail["errorKey"]);
                     $missingNeededData = true;
                 } else {
                     if ($operator == self::DP_XOR && $hadEntry) {
                         ErrorManager::addError($detail["errorType"], "too_many_data_points");
-                        break;
+                        return false;
                     }
                     $hadEntry = true;
                 }
             }
-            return (!$missingNeededData && $hadEntry);
+            if (!$missingNeededData && $hadEntry) {
+                $dataHolder = $data;
+                return true;
+            }
+            return false;
         }
         
         
