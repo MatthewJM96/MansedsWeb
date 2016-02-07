@@ -22,14 +22,14 @@
     use Sycamore\Row\User;
     use Sycamore\Table\ObjectTable;
 
-    class UsersModel extends ObjectTable
+    class User extends ObjectTable
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
          */
         public function __construct()
         {
-            parent::__construct("newsletter_subscribers", new User, null);
+            parent::__construct("users", new User, null);
         }
         
         /**

@@ -22,14 +22,14 @@
     use Sycamore\Row\ACLGroup;
     use Sycamore\Table\ObjectTable;
     
-    class ACLGroupTable extends ObjectTable
+    class ACLGroup extends ObjectTable
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
          */
         public function __construct()
         {
-            parent::__construct("acl_group_action_maps", new ACLGroup, null);
+            parent::__construct("acl_groups", new ACLGroup, null);
         }
         
         /**

@@ -22,13 +22,13 @@
     use Sycamore\Row\Route;
     use Sycamore\Table\ObjectTable;
 
-    class RoutesModel extends ObjectTable
+    class Route extends ObjectTable
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
          */
         public function __construct()
         {
-            parent::__construct("newsletter_subscribers", new Route, null);
+            parent::__construct("route", new Route, null);
         }
     }

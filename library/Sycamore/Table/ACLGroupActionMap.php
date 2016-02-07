@@ -19,21 +19,21 @@
 
     namespace Sycamore\Table;
     
-    use Sycamore\Row\ACLGroupUserMap;
+    use Sycamore\Row\ACLGroupActionMap;
     use Sycamore\Table\Table;
     
-    class ACLGroupUserMapTable extends Table
+    class ACLGroupActionMap extends Table
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
          */
         public function __construct()
         {
-            parent::__construct("acl_group_user_maps", new ACLGroupUserMap, null);
+            parent::__construct("acl_group_action_maps", new ACLGroupActionMap, null);
         }
         
         /**
-         * Gets all mappings with ACL group ID.
+         * Gets all mappings with ACL group ID as given.
          * 
          * @param int $id
          * @param bool $forceDbFetch
@@ -46,35 +46,36 @@
         }
         
         /**
-         * Gets all mappings with user ID.
+         * Gets all mappings with action ID as given.
          * 
          * @param int $id
          * @param bool $forceDbFetch
          * 
          * @return Zend\Db\ResultSet\ResultSet
          */
-        public function getByUserId($id, $forceDbFetch = false)
+        public function getByActionId($id, $forceDbFetch = false)
         {
-            return $this->getByKey("userId", $id, $forceDbFetch);
+            return $this->getByKey("actionId", $id, $forceDbFetch);
         }
         
         /**
-         * Determines if an ACL group and user are mapped together.
+         * Gets all mappings with ACL group ID and action ID as given.
          * 
          * @param int $groupId
-         * @param int $userId
+         * @param int $actionId
          * @param bool $forceDbFetch
          * 
-         * @return bool
+         * @return \Zend\Db\ResultSet\ResultSet
          */
-        public function areMappedTogether($groupId, $userId, $forceDbFetch = false)
+        public function getByACLGroupIdAndActionKey($groupId, $actionId, $forceDbFetch = false)
         {
-            return ($this->getBySelect(
-                array ( "groupId" => $groupId, "userId" => $userId ),
-                strval($groupId) . "-" . strval($userId),
-                "get_by_acl_group_id_and_route_id",
-                "Could not find row with an ACL group ID of $groupId and user ID of $userId, in table $this->table.",
+            return $this->getBySelect(
+                array ( "groupId" => $groupId, "actionKey" => $actionId ),
+                strval($groupId) . "-" . strval($actionId),
+                "get_by_acl_group_id_and_action_key",
+                "Could not find row with an ACL group ID of $groupId and action ID of $actionId, in table $this->table.",
                 $forceDbFetch
-            )->current() instanceof ACLGroupUserMap);
+            );
         }
     }
+        

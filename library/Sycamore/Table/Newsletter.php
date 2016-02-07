@@ -22,14 +22,14 @@
     use Sycamore\Row\Newsletter;
     use Sycamore\Table\ObjectTable;
     
-    class NewsletterTable extends ObjectTable
+    class Newsletter extends ObjectTable
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
          */
         public function __construct()
         {
-            parent::__construct("newsletter_subscribers", new Newsletter, null);
+            parent::__construct("newsletters", new Newsletter, null);
         }
         
         /**

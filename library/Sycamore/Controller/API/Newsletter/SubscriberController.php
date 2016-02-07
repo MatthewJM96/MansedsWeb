@@ -53,7 +53,7 @@
             // Attempt to acquire the provided data.
             $dataJson = filter_input(INPUT_GET, "data");
             
-            $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriberTable");
+            $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriber");
             $result = null;
             $validDataPoint = true;
             if (!$dataJson) {
@@ -135,7 +135,7 @@
             }
             
             // Grab the newsletter subscriber table.
-            $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriberTable");
+            $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriber");
             
             // Ensure the email is unique.
             if (!$newsletterSubscriberTable->isEmailUnique($email)) {
@@ -188,7 +188,7 @@
             }
                         
             // Get newsletter subscriber with provided delete key.
-            $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriberTable");
+            $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriber");
             $newsletterSubscriber = $newsletterSubscriberTable->getByDeleteKey($deleteKey);
             
             // Error out if no subscriber was found to have the delete key.

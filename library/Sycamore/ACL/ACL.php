@@ -66,7 +66,7 @@
          */
         public function getACLGroupRouteMapsByRouteId($routeId)
         {
-            $aclGroupRouteMapTable = TableCache::getTableFromCache("ACLGroupRouteMapTable");
+            $aclGroupRouteMapTable = TableCache::getTableFromCache("ACLGroupRouteMap");
             return $aclGroupRouteMapTable->getByRouteId($routeId);
         }
         
@@ -79,7 +79,7 @@
          */
         public function getACLGroupActionMapsByRouteId($actionId)
         {
-            $aclGroupActionMapTable = TableCache::getTableFromCache("ACLGroupActionMapTable");
+            $aclGroupActionMapTable = TableCache::getTableFromCache("ACLGroupActionMap");
             return $aclGroupActionMapTable->getByActionId($actionId);
         }
         
@@ -92,7 +92,7 @@
          * @return bool
          */
         public function userHasACLGroup($userId, $groupId) {
-            $aclGroupUserMapTable = TableCache::getTableFromCache("ACLGroupUserMapTable");
+            $aclGroupUserMapTable = TableCache::getTableFromCache("ACLGroupUserMap");
             return $aclGroupUserMapTable->areMappedTogether($groupId, $userId);
         }
         

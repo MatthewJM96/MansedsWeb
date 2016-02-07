@@ -54,7 +54,7 @@
             $dataJson = filter_input(INPUT_GET, "data");
             
             // Grab the user table.
-            $userTable = TableCache::getTableFromCache("UserTable");
+            $userTable = TableCache::getTableFromCache("User");
             
             // Fetch users with given values, or all users if no values provided. 
             $result = null;
@@ -154,7 +154,7 @@
             $user->name = $name;
             
             // Save the new user to database.
-            $userTable = TableCache::getTableFromCache("UserTable");
+            $userTable = TableCache::getTableFromCache("User");
             $userTable->save($user);
             
             // Let client know user creation was successful.
@@ -192,7 +192,7 @@
             $id = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
             
             // Get user with provided delete key.
-            $userTable = TableCache::getTableFromCache("UserTable");
+            $userTable = TableCache::getTableFromCache("User");
             $user = $userTable->getById($id);
             
             // Error out if no subscriber was found to have the delete key.
@@ -245,7 +245,7 @@
             }
             
             // Get user with provided user ID.
-            $userTable = TableCache::getTableFromCache("UserTable");
+            $userTable = TableCache::getTableFromCache("User");
             $user = $userTable->getById($id);
             
             // Handle invalid user IDs.

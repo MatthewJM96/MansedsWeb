@@ -24,7 +24,7 @@
     
     use Zend\Db\ResultSet\ResultSet;
     
-    class NewsletterSubscriberTable extends ObjectTable
+    class NewsletterSubscriber extends ObjectTable
     {
         /**
          * Sets up the result set prototype and then created the table gateway.

@@ -54,7 +54,7 @@
             $dataJson = filter_input(INPUT_GET, "data");
             
             // Grab the ban table.
-            $banTable = TableCache::getTableFromCache("BanTable");
+            $banTable = TableCache::getTableFromCache("Ban");
             
             // Fetch bans with given values, or all bans if no values provided.
             $result = null;
@@ -157,8 +157,8 @@
             $expiryTime = filter_input(INPUT_POST, "expiryTime", FILTER_SANITIZE_NUMBER_INT);
             
             // Grab the user and ban tables.
-            $userTable = TableCache::getTableFromCache("UserTable");
-            $banTable = TableCache::getTableFromCache("BanTable");
+            $userTable = TableCache::getTableFromCache("User");
+            $banTable = TableCache::getTableFromCache("Ban");
             
             $bannedUser = $userTable->getById($bannedId);
             if (!$bannedUser) {
@@ -219,8 +219,8 @@
             }
             
             // Grab the needed tables.
-            $banTable = TableCache::getTableFromCache("BanTable");
-            $userTable = TableCache::getTableFromCache("UserTable");
+            $banTable = TableCache::getTableFromCache("Ban");
+            $userTable = TableCache::getTableFromCache("User");
             
             // Get ban with given ban ID.
             $ban = $banTable->getById($banId);

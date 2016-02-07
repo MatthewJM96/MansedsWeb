@@ -133,7 +133,7 @@
          */
         public static function isUniqueEmail($email, $errorType = "email_error")
         {
-            $userTable = TableCache::getTableFromCache("UserTable");
+            $userTable = TableCache::getTableFromCache("User");
             if (!$userTable->isEmailUnique($email)) {
                 ErrorManager::addError($errorType, "none_unique_email");
                 return false;
@@ -174,7 +174,7 @@
          */
         public static function isUniqueUsername($username, $errorType = "username_error")
         {
-            $userTable = TableCache::getTableFromCache("UserTable");
+            $userTable = TableCache::getTableFromCache("User");
             if (!$userTable->isUsernameUnique($username)) {
                 ErrorManager::addError($errorType, "none_unique_username");
                 return false;

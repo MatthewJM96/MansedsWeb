@@ -38,7 +38,7 @@
          */
         public static function create($usernameOrEmail, $extendedSession = false)
         {
-            $userTable = TableCache::getTableFromCache("UserTable");
+            $userTable = TableCache::getTableFromCache("User");
             if (filter_var($usernameOrEmail, FILTER_VALIDATE_EMAIL)) {
                 $user = $userTable->getByEmail($usernameOrEmail);
             } else {

@@ -19,17 +19,17 @@
 
     namespace Sycamore\Table;
     
-    use Sycamore\Row\ACLGroupActionMap;
+    use Sycamore\Row\ACLGroupRouteMap;
     use Sycamore\Table\Table;
     
-    class ACLGroupActionMapTable extends Table
+    class ACLGroupRouteMap extends Table
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
          */
         public function __construct()
         {
-            parent::__construct("acl_group_action_maps", new ACLGroupActionMap, null);
+            parent::__construct("acl_group_route_maps", new ACLGroupRouteMap, null);
         }
         
         /**
@@ -46,36 +46,36 @@
         }
         
         /**
-         * Gets all mappings with action ID as given.
+         * Gets all mappings with route ID as given.
          * 
          * @param int $id
          * @param bool $forceDbFetch
          * 
          * @return Zend\Db\ResultSet\ResultSet
          */
-        public function getByActionId($id, $forceDbFetch = false)
+        public function getByRouteId($id, $forceDbFetch = false)
         {
-            return $this->getByKey("actionId", $id, $forceDbFetch);
+            return $this->getByKey("routeId", $id, $forceDbFetch);
         }
         
         /**
-         * Gets all mappings with ACL group ID and action ID as given.
+         * Gets all mappings with ACL group ID and route ID as given.
          * 
          * @param int $groupId
-         * @param int $actionId
+         * @param int $routeId
          * @param bool $forceDbFetch
          * 
          * @return \Zend\Db\ResultSet\ResultSet
          */
-        public function getByACLGroupIdAndActionKey($groupId, $actionId, $forceDbFetch = false)
+        public function getByACLGroupIdAndRouteId($groupId, $routeId, $forceDbFetch = false)
         {
             return $this->getBySelect(
-                array ( "groupId" => $groupId, "actionKey" => $actionId ),
-                strval($groupId) . "-" . strval($actionId),
-                "get_by_acl_group_id_and_action_key",
-                "Could not find row with an ACL group ID of $groupId and action ID of $actionId, in table $this->table.",
+                array ( "groupId" => $groupId, "routeId" => $routeId ),
+                strval($groupId) . "-" . strval($routeId),
+                "get_by_acl_group_id_and_route_id",
+                "Could not find row with an ACL group ID of $groupId and route ID of $routeId, in table $this->table.",
                 $forceDbFetch
             );
         }
     }
-        
+

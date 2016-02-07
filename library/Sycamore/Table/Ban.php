@@ -22,14 +22,14 @@
     use Sycamore\Row\Ban;
     use Sycamore\Table\ObjectTable;
     
-    class BanTable extends ObjectTable
+    class Ban extends ObjectTable
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
          */
         public function __construct()
         {
-            parent::__construct("acl_group_user_maps", new Ban, null);
+            parent::__construct("bans", new Ban, null);
         }
         
         public function getByBanned($id, $forceDbFetch = false)

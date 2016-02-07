@@ -39,7 +39,7 @@
                 $actionKey = get_class($event->getTarget()) . "\\" . $event->getName();
                 
                 // Get action by its key.
-                $actionTable = TableCache::getTableFromCache("ActionTable");
+                $actionTable = TableCache::getTableFromCache("Action");
                 $action = $actionTable->getByKey($actionKey);
                 
                 // If action open state is OPEN, allow execution.

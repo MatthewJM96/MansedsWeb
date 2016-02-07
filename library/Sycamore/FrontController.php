@@ -71,7 +71,7 @@
             $this->eventManager->setSharedManager(Application::getSharedEventsManager());
             
             // Get routes from database.
-            $routesTable = TableCache::getTableFromCache("RoutesTable");
+            $routesTable = TableCache::getTableFromCache("Route");
             $routes = $routesTable->fetchAll();
             
             // Prepare router and dispatcher.

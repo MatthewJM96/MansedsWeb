@@ -24,14 +24,14 @@
     
     use Zend\Db\ResultSet\ResultSet;
     
-    class ActionTable extends ObjectTable
+    class Action extends ObjectTable
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
          */
         public function __construct()
         {
-            parent::__construct("acl_group_user_maps", new Action, null);
+            parent::__construct("actions", new Action, null);
         }
         
         /**
