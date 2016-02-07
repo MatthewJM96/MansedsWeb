@@ -46,11 +46,12 @@
                 if ($action->openState == ActionOpenState::OPEN) {
                     return true;
                 }
-                // If use is not logged in and action open state is SEMIOPEN, allow execution. Otherwise for logged out visitor, deny.
-                if (!Visitor::getInstance()->isLoggedIn) {
+                // If use is logged in and action is semi-open, allow. Otherwise for a logged out visitor, deny.
+                if (Visitor::getInstance()->isLoggedIn) {
                     if ($action->openState == ActionOpenState::SEMIOPEN) {
                         return true;
                     }
+                } else {
                     return false;
                 }
                 
