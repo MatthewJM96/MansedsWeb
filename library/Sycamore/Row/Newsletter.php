@@ -29,7 +29,7 @@
         public $cancelled;
         public $sendTime;
         ///* -1 indicates send to all users.
-        public $recipientGroups;
+        public $recipientGroup;
         // Uneditable in API:
         public $sent;
     }
