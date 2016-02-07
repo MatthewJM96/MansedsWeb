@@ -58,6 +58,7 @@
             
             // Fetch users with given values, or all users if no values provided. 
             $result = null;
+            $validDataPoint = true;
             if (!$dataJson) {
                 $result = $userTable->fetchAll();
             } else {
@@ -77,28 +78,18 @@
                 // Fetch matching users, storing with ID as key for simple overwrite to avoid duplicates.
                 $result = array();
                 if (!is_null($ids)) {
-                    $usersByIds = $userTable->getByIds($ids);
-                    foreach ($usersByIds as $user) {
-                        $result[$user->id] = $user;
-                    }
+                    $validDataPoint = $userTable->getByDataPoint($ids, "getByIds", $result);
                 }
                 if (!is_null($usernames)) {
-                    $usersByUsernames = $userTable->getByUsernames($usernames);
-                    foreach ($usersByUsernames as $user) {
-                        $result[$user->id] = $user;
-                    }
+                    $validDataPoint = $userTable->getByDataPoint($usernames, "getByUsernames", $result);
                 }
                 if (!is_null($emails)) {
-                    $usersByEmails = $userTable->getByEmails($emails);
-                    foreach ($usersByEmails as $user) {
-                        $result[$user->id] = $user;
-                    }
+                    $validDataPoint = $userTable->getByDataPoint($emails, "getByEmails", $result);
                 }
             }
             
-            // TODO(Matthew): Could be no entries in a table?
             // If result is bad, input must have been bad.
-            if (is_null($result) || empty($result)) {
+            if (is_null($result) || !$validDataPoint) {
                 ErrorManager::addError("data_error", "invalid_data_filter_object");
                 $this->prepareExit();
                 return ActionState::DENIED;

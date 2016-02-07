@@ -58,6 +58,7 @@
             
             // Fetch bans with given values, or all bans if no values provided.
             $result = null;
+            $validDataPoint = true;
             if (!$dataJson) {
                 $result = $banTable->fetchAll();
             } else {
@@ -83,56 +84,35 @@
                 // Fetch matching bans, storing with ID as key for simple overwrite to avoid duplicates.
                 $result = array();
                 if (!is_null($state)) {
-                    $bansByState = $banTable->getByState($state);
-                    foreach ($bansByState as $ban) {
-                        $result[$ban->id] = $ban;
-                    }
+                    $validDataPoint = $banTable->getByDataPoint($state, "getByState", $result);
                 }
                 if (!is_null($banIds)) {
-                    $bansByBanIds = $banTable->getByIds($banIds);
-                    foreach ($bansByBanIds as $ban) {
-                        $result[$ban->id] = $ban;
-                    }
+                    $validDataPoint = $banTable->getByDataPoint($banIds, "getByIds", $result);
                 }
                 if (!is_null($creatorIds)) {
-                    $bansByCreatorIds = $banTable->getByCreators($creatorIds);
-                    foreach ($bansByCreatorIds as $ban) {
-                        $result[$ban->id] = $ban;
-                    }
+                    $validDataPoint = $banTable->getByDataPoint($creatorIds, "getByCreators", $result);
                 }
                 if (!is_null($bannedIds)) {
-                    $bansByBannedIds = $banTable->getByState($bannedIds);
-                    foreach ($bansByBannedIds as $ban) {
-                        $result[$ban->id] = $ban;
-                    }
+                    $validDataPoint = $banTable->getByDataPoint($bannedIds, "getByBanned", $result);
                 }
-                $bansByCreationTime = array();
                 if ($creationTimeMin > 0 && $creationTimeMax > 0) {
-                    $bansByCreationTime = $banTable->getByCreationTimeRange($creationTimeMin, $creationTimeMax);
+                    $validDataPoint = $banTable->getByDataPointRange($creationTimeMin, $creationTimeMax, "getByCreationTimeRange", $result);
                 } else if ($creationTimeMin > 0) {
-                    $bansByCreationTime = $banTable->getByCreationTimeMin($creationTimeMin);
+                    $validDataPoint = $banTable->getByDataPoint($creationTimeMin, "getByCreationTimeMin", $result);
                 } else if ($creationTimeMax > 0) {
-                    $bansByCreationTime = $banTable->getByCreationTimeMax($creationTimeMax);
+                    $validDataPoint = $banTable->getByDataPoint($creationTimeMax, "getByCreationTimeMax", $result);
                 }
-                foreach ($bansByCreationTime as $ban) {
-                    $result[$ban->id] = $ban;
-                }
-                $bansByExpiryTime = array();
                 if ($expiryTimeMin > 0 && $expiryTimeMax > 0) {
-                    $bansByExpiryTime = $banTable->getByExpiryTimeRange($expiryTimeMin, $expiryTimeMax);
+                    $validDataPoint = $banTable->getByDataPointRange($expiryTimeMin, $expiryTimeMax, "getByExpiryTimeRange", $result);
                 } else if ($expiryTimeMin > 0) {
-                    $bansByExpiryTime = $banTable->getByExpiryTimeMin($expiryTimeMin);
+                    $validDataPoint = $banTable->getByDataPoint($expiryTimeMin, "getByExpiryTimeMin", $result);
                 } else if ($expiryTimeMax > 0) {
-                    $bansByExpiryTime = $banTable->getByExpiryTimeMax($expiryTimeMax);
-                }
-                foreach ($bansByExpiryTime as $ban) {
-                    $result[$ban->id] = $ban;
+                    $validDataPoint = $banTable->getByDataPoint($expiryTimeMax, "getByExpiryTimeMax", $result);
                 }
             }
-                
-            // TODO(Matthew): Could be no entries in a table?
+            
             // If result is bad, input must have been bad.
-            if (is_null($result) || empty($result)) {
+            if (is_null($result) || !$validDataPoint) {
                 ErrorManager::addError("data_error", "invalid_data_filter_object");
                 $this->prepareExit();
                 return ActionState::DENIED;

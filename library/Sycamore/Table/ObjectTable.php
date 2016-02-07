@@ -74,6 +74,51 @@
         }
         
         /**
+         * Gets matches to data point provided through calling the given function.
+         * Populates result array, keyed by object ID.
+         * 
+         * @param mixed $dataPoint
+         * @param string $getFunc
+         * @param array $result
+         * 
+         * @return boolean
+         */
+        public function getByDataPoint($dataPoint, $getFunc, $result, $forceDbFetch = false) {
+            $rawResult = $this->$getFunc($dataPoint, $forceDbFetch);
+            if (is_null($rawResult)) {
+                return false;
+            } else {
+                foreach ($rawResult as $rawResultItem) {
+                    $result[$rawResultItem->id] = $rawResultItem;
+                }
+            }
+            return true;
+        }
+        
+        /**
+         * Gets matches to data point range provided through calling the given function.
+         * Populates result array, keyed by object ID.
+         * 
+         * @param mixed $dataPointMin
+         * @param mixed $dataPointMax
+         * @param string $getFunc
+         * @param array $result
+         * 
+         * @return boolean
+         */
+        public function getByDataPointRange($dataPointMin, $dataPointMax, $getFunc, $result, $forceDbFetch = false) {
+            $rawResult = $this->$getFunc($dataPointMin, $dataPointMax, $forceDbFetch);
+            if (is_null($rawResult)) {
+                return false;
+            } else {
+                foreach ($rawResult as $rawResultItem) {
+                    $result[$rawResultItem->id] = $rawResultItem;
+                }
+            }
+            return true;
+        }
+        
+        /**
          * Saves the given row object, as an update if an id is provided, 
          * as an insertion otherwise.
          * 

@@ -55,6 +55,7 @@
             
             $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriberTable");
             $result = null;
+            $validDataPoint = true;
             if (!$dataJson) {
                 // Fetch all subscribers as no filter provided.
                 $result = $newsletterSubscriberTable->fetchAll();
@@ -73,16 +74,13 @@
                 // Ascertain each email is valid in type and format.
                 $result = array();
                 if (!is_null($emails)) {
-                    $subscribersByEmails = $newsletterSubscriberTable->getByEmails($emails);
-                    foreach ($subscribersByEmails as $subscriber) {
-                        $result[$subscriber->id] = $subscriber;
-                    }
+                    $validDataPoint = $newsletterSubscriberTable->getByDataPoint($emails, "getByEmails", $result);
                 }
             }
             
-            // TODO(Matthew): Could be no entries in a table?
+            // TODO(Matthew): Check that bad contents of data point does result in null result. Extends for all controllers.
             // If result is bad, input must have been bad.
-            if (is_null($result) || empty($result)) {
+            if (is_null($result) || !$validDataPoint) {
                 ErrorManager::addError("data_error", "invalid_data_filter_object");
                 $this->prepareExit();
                 return ActionState::DENIED;
