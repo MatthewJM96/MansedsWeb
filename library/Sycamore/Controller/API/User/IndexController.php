@@ -208,7 +208,7 @@
         }
         
         /**
-         * Executes the process of updating a desired user.
+         * Executes the process of updating a user.
          * Only handles the following data points of a user:
          *  - Name
          *  - Preferred Name
