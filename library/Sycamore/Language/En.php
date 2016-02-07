@@ -59,6 +59,8 @@
             "banned_user_non_existent" => "The user to be banned does not exist.",
             "missing_ban_id" => "A ban ID needs to be provided.",
             "invalid_ban_id" => "The ban ID provided was invalid.",
+            "missing_ban_state" => "A ban state needs to be provided.",
+            "invalid_ban_state" => "The ban state provided was invalid."
         );
         
         public function __construct()
