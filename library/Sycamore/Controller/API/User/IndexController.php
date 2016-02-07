@@ -188,11 +188,11 @@
                 }
             }
             
-            // Get user with provided delete key.
+            // Get user with provided ID.
             $userTable = TableCache::getTableFromCache("User");
             $user = $userTable->getById($data["id"]);
             
-            // Error out if no subscriber was found to have the delete key.
+            // Error out if no subscriber was found to have the ID.
             if (!$user) {
                 ErrorManager::addError("user_id", "invalid_user_id");
                 $this->prepareExit();
