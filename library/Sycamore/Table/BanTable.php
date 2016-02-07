@@ -29,9 +29,7 @@
          */
         public function __construct()
         {
-            $resultSetPrototype = new ResultSet();
-            $resultSetPrototype->setArrayObjectPrototype(new Ban);
-            parent::__construct("bans", null, $resultSetPrototype);
+            parent::__construct("acl_group_user_maps", new Ban, null);
         }
         
         public function getByCreator($id, $forceDbFetch = false)
@@ -57,21 +55,6 @@
         public function getByState($state, $forceDbFetch = false)
         {
             return $this->getByKey("status", $state, $forceDbFetch);
-        }
-        
-        public function getByCreationTimeMin($creationTimeMin, $forceDbFetch = false)
-        {
-            return $this->getByKeyGreaterThanOrEqualTo("creationTime", $creationTimeMin, $forceDbFetch);
-        }
-        
-        public function getByCreationTimeMax($creationTimeMax, $forceDbFetch = false)
-        {
-            return $this->getByKeyLessThanOrEqualTo("creationTime", $creationTimeMax, $forceDbFetch);
-        }
-        
-        public function getByCreationTimeRange($creationTimeMin, $creationTimeMax, $forceDbFetch = false)
-        {
-            return $this->getByKeyBetween("creationTime", $creationTimeMin, $creationTimeMax, $forceDbFetch);
         }
         
         public function getByExpiryTimeMin($expiryTimeMin, $forceDbFetch = false)

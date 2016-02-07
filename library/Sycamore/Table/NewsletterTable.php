@@ -29,9 +29,7 @@
          */
         public function __construct()
         {
-            $resultSetPrototype = new ResultSet();
-            $resultSetPrototype->setArrayObjectPrototype(new Newsletter);
-            parent::__construct("newsletters", null, $resultSetPrototype);
+            parent::__construct("newsletter_subscribers", new Newsletter, null);
         }
         
         /**

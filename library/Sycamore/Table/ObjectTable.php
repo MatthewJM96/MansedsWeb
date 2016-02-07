@@ -19,23 +19,22 @@
 
     namespace Sycamore\Table;
     
+    use Sycamore\Row\RowObject;
     use Sycamore\Table\Table;
     
-    use Zend\Db\ResultSet\ResultSet;
     use Zend\Db\Sql\Sql;
 
     /**
      * Sycamore abstract object table class.
-     * Assumes id is possessed.
      */
     abstract class ObjectTable extends Table
     {
         /**
          * Passes straight through to Table constructor.
          */
-        public function __construct($table, $features = null, ResultSet $resultSetPrototype = null, Sql $sql = null)
+        public function __construct($table, RowObject $rowObject, $features = null, Sql $sql = null)
         {
-            parent::__construct($table, $features, $resultSetPrototype, $sql);
+            parent::__construct($table, $rowObject, $features, $sql);
         }
         
         /**
@@ -52,7 +51,7 @@
         }
         
         /**
-         * Gets the matching users by their IDs.
+         * Gets the matching row objects by their IDs.
          * 
          * @param array $ids
          * @param bool $forceDbFetch
@@ -62,6 +61,46 @@
         public function getByIds($ids, $forceDbFetch = false)
         {
             return $this->getByKeyInCollection("id", $ids, $forceDbFetch);
+        }
+        
+        /**
+         * Get matching row objects with a minimum creation time matching that given.
+         * 
+         * @param int $creationTimeMin
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByCreationTimeAfter($creationTimeMin, $forceDbFetch = false)
+        {
+            return $this->getByKeyGreaterThanOrEqualTo("creationTime", $creationTimeMin, $forceDbFetch);
+        }
+        
+        /**
+         * Get matching row objects with a maximum creation time matching that given.
+         * 
+         * @param int $creationTimeMax
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByCreationTimeBefore($creationTimeMax, $forceDbFetch = false)
+        {
+            return $this->getByKeyLessThanOrEqualTo("creationTime", $creationTimeMax, $forceDbFetch);
+        }
+        
+        /**
+         * Get matching row objects with a minimum and maximum creation time matching those given.
+         * 
+         * @param int $creationTimeMin
+         * @param int $creationTimeMax
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByCreationTimeRange($creationTimeMin, $creationTimeMax, $forceDbFetch = false)
+        {
+            return $this->getByKeyBetween("creationTime", $creationTimeMin, $creationTimeMax, $forceDbFetch);
         }
         
         /**

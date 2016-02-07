@@ -29,9 +29,7 @@
          */
         public function __construct()
         {
-            $resultSetPrototype = new ResultSet();
-            $resultSetPrototype->setArrayObjectPrototype(new ACLGroupRouteMap);
-            parent::__construct("acl_group_route_maps", null, $resultSetPrototype);
+            parent::__construct("acl_group_action_maps", new ACLGroupRouteMap, null);
         }
         
         /**

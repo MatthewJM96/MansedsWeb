@@ -22,6 +22,8 @@
     use Sycamore\Row\Action;
     use Sycamore\Table\ObjectTable;
     
+    use Zend\Db\ResultSet\ResultSet;
+    
     class ActionTable extends ObjectTable
     {
         /**
@@ -29,9 +31,7 @@
          */
         public function __construct()
         {
-            $resultSetPrototype = new ResultSet();
-            $resultSetPrototype->setArrayObjectPrototype(new Action);
-            parent::__construct("actions", null, $resultSetPrototype);
+            parent::__construct("acl_group_user_maps", new Action, null);
         }
         
         /**

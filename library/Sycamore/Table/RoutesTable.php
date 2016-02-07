@@ -21,8 +21,6 @@
     
     use Sycamore\Row\Route;
     use Sycamore\Table\ObjectTable;
-    
-    use Zend\Db\ResultSet\ResultSet;
 
     class RoutesModel extends ObjectTable
     {
@@ -31,8 +29,6 @@
          */
         public function __construct()
         {
-            $resultSetPrototype = new ResultSet();
-            $resultSetPrototype->setArrayObjectPrototype(new Route);
-            parent::__construct("routes", null, $resultSetPrototype);
+            parent::__construct("newsletter_subscribers", new Route, null);
         }
     }

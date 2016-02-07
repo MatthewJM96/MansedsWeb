@@ -21,8 +21,6 @@
     
     use Sycamore\Row\User;
     use Sycamore\Table\ObjectTable;
-    
-    use Zend\Db\ResultSet\ResultSet;
 
     class UsersModel extends ObjectTable
     {
@@ -31,9 +29,7 @@
          */
         public function __construct()
         {
-            $resultSetPrototype = new ResultSet();
-            $resultSetPrototype->setArrayObjectPrototype(new User);
-            parent::__construct("users", null, $resultSetPrototype);
+            parent::__construct("newsletter_subscribers", new User, null);
         }
         
         /**

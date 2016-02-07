@@ -20,6 +20,7 @@
     namespace Sycamore\Table;
     
     use Sycamore\Application;
+    use Sycamore\Row\Row;
     
     use Zend\Db\ResultSet\ResultSet;
     use Zend\Db\Sql\Select;
@@ -48,9 +49,12 @@
         /**
          * Constructs table gateway for table object.
          */
-        public function __construct($table, $features = null, ResultSet $resultSetPrototype = null, Sql $sql = null)
+        public function __construct($table, Row $row, $features = null, Sql $sql = null)
         {
             $this->table = Application::getConfig()->db->tablePrefix . $table;
+            
+            $resultSetPrototype = new ResultSet();
+            $resultSetPrototype->setArrayObjectPrototype($row);
             $this->tableGateway = new TableGateway($this->table, Application::getDbAdapter(), $features, $resultSetPrototype, $sql);
         }
         

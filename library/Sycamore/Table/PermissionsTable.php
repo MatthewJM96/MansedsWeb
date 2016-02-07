@@ -21,8 +21,6 @@
     
     use Sycamore\Row\Permission;
     use Sycamore\Table\ObjectTable;
-    
-    use Zend\Db\ResultSet\ResultSet;
 
     class PermissionsModel extends ObjectTable
     {        
@@ -31,9 +29,7 @@
          */
         public function __construct()
         {
-            $resultSetPrototype = new ResultSet();
-            $resultSetPrototype->setArrayObjectPrototype(new Permission);
-            parent::__construct("permissions", null, $resultSetPrototype);
+            parent::__construct("newsletter_subscribers", new Permission, null);
         }
         
         /**
