@@ -19,7 +19,7 @@
 
     namespace Sycamore\Row;
     
-    class Row
+    abstract class Row
     {
         public function exchangeArray($data)
         {
