@@ -224,7 +224,7 @@
             $dataProvided = array (
                 array ( "key" => "id", "errorType" => "user_id", "errorKey" => "missing_user_id" )
             );
-            if (!$this->fetchData($dataProvided, INPUT_GET)) {
+            if (!$this->fetchData($dataProvided, INPUT_GET, $data)) {
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
