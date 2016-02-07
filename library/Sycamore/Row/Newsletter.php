@@ -19,17 +19,17 @@
 
     namespace Sycamore\Row;
     
-    use Sycamore\Row\Row;
+    use Sycamore\Row\RowObject;
     
-    class Newsletter extends Row
+    class Newsletter extends RowObject
     {
         // Admin Token Required:
         public $subject;
         public $body;
         public $cancelled;
-        public $sendtime;
+        public $sendTime;
+        ///* -1 indicates send to all users.
         public $recipientGroups;
         // Uneditable in API:
-        public $id;
         public $sent;
     }

@@ -19,11 +19,10 @@
 
     namespace Sycamore\Row;
     
-    use Sycamore\Row\Row;
+    use Sycamore\Row\RowObject;
     
-    class Permission extends Row
+    class Permission extends RowObject
     {
-        public $id;
         public $name;
         public $key;
     }

@@ -19,15 +19,14 @@
 
     namespace Sycamore\Row;
     
-    use Sycamore\Row\Row;
+    use Sycamore\Row\RowObject;
     
-    class Action extends Row
+    class Action extends RowObject
     {
         // Admin token required:
         public $name;
         public $description;
         public $openState;
         // Uneditable in API:
-        public $id;
         public $key;
     }

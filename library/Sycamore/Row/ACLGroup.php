@@ -19,13 +19,11 @@
 
     namespace Sycamore\Row;
     
-    use Sycamore\Row\Row;
+    use Sycamore\Row\RowObject;
     
-    class ACLGroup extends Row
+    class ACLGroup extends RowObject
     {
         // Admin Token Required:
         public $name;
         public $description;
-        // Uneditable in API:
-        public $id;
     }

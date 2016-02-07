@@ -19,18 +19,15 @@
 
     namespace Sycamore\Row;
     
-    use Sycamore\Row\Row;
+    use Sycamore\Row\RowObject;
     
-    class Ban extends Row
+    class Ban extends RowObject
     {
         // Admin Token Required:
         ///* 1 = active, 0 = lifted
         public $status;
         // Uneditable in API:
-        public $id;
-        public $creationTime;
         public $expiryTime;
         public $bannedId;
-        public $creatorId;
     }
     

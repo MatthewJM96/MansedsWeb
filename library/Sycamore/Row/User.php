@@ -19,9 +19,9 @@
 
     namespace Sycamore\Row;
     
-    use Sycamore\Row\Row;
+    use Sycamore\Row\RowObject;
     
-    class User extends Row
+    class User extends RowObject
     {
         // Admin/THIS User Token Required:
         public $name;
@@ -37,7 +37,6 @@
         public $username;
         public $banned;
         // Uneditable in API:
-        public $id;
         public $lastOnline;
         ///* Superusers can do anything and have complete rights (i.e. cannot be superseded by any ACL group).
         public $superUser;

@@ -19,11 +19,10 @@
 
     namespace Sycamore\Row;
     
-    use Sycamore\Row\Row;
+    use Sycamore\Row\RowObject;
     
-    class NewsletterSubscriber extends Row
+    class NewsletterSubscriber extends RowObject
     {
-        public $id;
         public $email;
         public $name;
         public $deleteKey;

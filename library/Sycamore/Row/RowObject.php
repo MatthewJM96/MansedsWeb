@@ -21,8 +21,10 @@
     
     abstract class RowObject extends Row
     {
+        // Uneditable in API:
         public $id;
         public $creationTime;
+        public $creatorId;
         public $lastUpdateTime;
-        public $lastUpdator;
+        public $lastUpdatorId;
     }

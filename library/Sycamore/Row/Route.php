@@ -20,9 +20,9 @@
     namespace Sycamore\Row;
     
     use Sycamore\Request;
-    use Sycamore\Row\Row;
+    use Sycamore\Row\RowObject;
     
-    class Route extends Row
+    class Route extends RowObject
     {
         // Admin token required:
         /**
@@ -51,8 +51,6 @@
         public $keys;
         ///* Describes whether anyone can access the route without being logged in and have appropriate permissions.
         public $open;
-        // Uneditable in API.
-        public $id;
         
         /**
          * Assesses if the request matches this route.
