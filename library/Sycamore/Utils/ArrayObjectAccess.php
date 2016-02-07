@@ -32,34 +32,43 @@
         protected $data;
         
         /**
-         * Get a data by key
+         * Get a data item by key, returns false if no item exists at given key.
          *
-         * @param string - The key data to retrieve
+         * @param string $key
+         * 
+         * @return bool|mixed
+         * 
          * @access public
          */
         public function &__get ($key) 
         {
+            if (!isset($this->data[$key])) {
+                return false;
+            }
             return $this->data[$key];
         }
 
         /**
-         * Assigns a value to the specified data
+         * Sets a value under the given key.
          * 
-         * @param string - The data key to assign the value to
-         * @param mixed - The value to set
-         * @access public 
+         * @param string $key
+         * @param mixed $value
+         * 
+         * @access public
          */
-        public function __set($key,$value) 
+        public function __set($key, $value) 
         {
             $this->data[$key] = $value;
         }
 
         /**
-         * Whether or not an data exists by key
+         * Determines whether an item exists under a given key.
          *
-         * @param string - An data key to check for
-         * @access public
+         * @param string $key
+         * 
          * @return boolean
+         * 
+         * @access public
          * @abstracting ArrayAccess
          */
         public function __isset ($key) 
@@ -68,10 +77,9 @@
         }
 
         /**
-         * Unsets an data by key
+         * Unsets a data item at the given key
          *
-         * @param string - The key to unset
-         * @access public
+         * @param string $key
          */
         public function __unset($key) 
         {
@@ -79,14 +87,15 @@
         }
 
         /**
-         * Assigns a value to the specified offset
+         * Assigns a value to the specified offset.
          *
-         * @param string - The offset to assign the value to
-         * @param mixed - The value to set
+         * @param string $offset
+         * @param mixed $value
+         * 
          * @access public
          * @abstracting ArrayAccess
          */
-        public function offsetSet($offset,$value) 
+        public function offsetSet($offset, $value) 
         {
             if (is_null($offset)) {
                 $this->data[] = $value;
@@ -96,11 +105,13 @@
         }
 
         /**
-         * Whether or not an offset exists
+         * Determines if an item exists at the given offset.
          *
-         * @param string - An offset to check for
-         * @access public
+         * @param string $offset
+         * 
          * @return boolean
+         * 
+         * @access public
          * @abstracting ArrayAccess
          */
         public function offsetExists($offset)
@@ -109,9 +120,10 @@
         }
 
         /**
-         * Unsets an offset
+         * Unsets the item at the given offset.
          *
-         * @param string - The offset to unset
+         * @param string $offset
+         * 
          * @access public
          * @abstracting ArrayAccess
          */
@@ -123,11 +135,13 @@
         }
         
         /**
-         * Returns the value at specified offset
+         * Returns the value at specified offset.
          *
-         * @param string The offset to retrieve
-         * @access public
+         * @param string $offset
+         * 
          * @return mixed
+         * 
+         * @access public
          * @abstracting ArrayAccess
          */
         public function offsetGet($offset) 
@@ -138,7 +152,8 @@
         /**
          * Merges given array into data.
          *
-         * @param array - The array to merge.
+         * @param array $array
+         * 
          * @access public
          */
         public function arrayMerge($array)
