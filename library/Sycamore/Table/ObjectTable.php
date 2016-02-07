@@ -77,6 +77,19 @@
         }
         
         /**
+         * Get matching row objects with a creator of the given IDs.
+         * 
+         * @param array $creatorIds
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByCreators($creatorIds, $forceDbFetch = false)
+        {
+            return $this->getByKeyInCollection("creatorId", $creatorIds, $forceDbFetch);
+        }
+        
+        /**
          * Get matching row objects with a minimum creation time matching that given.
          * 
          * @param int $creationTimeMin
@@ -117,7 +130,7 @@
         }
         
         /**
-         * Get matching row objects with most recent updator of the given ID.
+         * Get matching row objects with most recent updator with the given ID.
          * 
          * @param int $updatorId
          * @param bool $forceDbFetch
@@ -127,6 +140,19 @@
         public function getByUpdator($updatorId, $forceDbFetch = false)
         {
             return $this->getByKey($updatorId, "updatorId", $forceDbFetch);
+        }
+        
+        /**
+         * Get matching row objects with most recent updator with any of the given IDs.
+         * 
+         * @param array $updatorIds
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByUpdators($updatorIds, $forceDbFetch = false)
+        {
+            return $this->getByKeyInCollection("updatorId", $updatorIds, $forceDbFetch);
         }
         
         /**
