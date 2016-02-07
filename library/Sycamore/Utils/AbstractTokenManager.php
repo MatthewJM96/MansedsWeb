@@ -24,6 +24,8 @@
     use Firebase\JWT\JWT;
     use Firebase\JWT\SignatureInvalidException;
     
+    use Zend\Math\Rand;
+    
     abstract class AbstractTokenManager
     {
         /**
@@ -50,7 +52,7 @@
                 "exp" => $time + $tokenLifetime,
                 "nbf" => $time,
                 "prn" => "$prn",
-                "jti" => Random::randomString(12),
+                "jti" => Rand::getString(12, NULL, true),
                 Application::getConfig()->domain => $applicationPayload
             );
             
