@@ -44,7 +44,7 @@
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else {
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
@@ -76,7 +76,7 @@
                 // Ensure all data provided is expected types.
 //                if (!is_int($state) || !is_array($banIds) || !is_array($creatorIds) || !is_array($bannedIds) ||
 //                        !is_int($creationTimeMin) || !is_int($creationTimeMax) || !is_int($expiryTimeMin) || !is_int($expiryTimeMax)) {
-//                    ErrorManager::addError("data_error", "invalid_data_filter_object");
+//                    ErrorManager::addError("data", "invalid_data_filter_object");
 //                    $this->prepareExit();
 //                    return ActionState::DENIED;
 //                }
@@ -113,7 +113,7 @@
             
             // If result is bad, input must have been bad.
             if (is_null($result) || !$validDataPoint) {
-                ErrorManager::addError("data_error", "invalid_data_filter_object");
+                ErrorManager::addError("data", "invalid_data_filter_object");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -133,10 +133,10 @@
         {
             // Ensure all data needed is posted to the server.
             $dataProvided = array (
-                array ( "key" => "bannedId", "errorType" => "banned_id_error", "errorKey" => "missing_banned_id" ),
-                array ( "key" => "expiryTime",  "errorType" => "expiry_time_error",  "errorKey" => "missing_expiry_time" )
+                array ( "key" => "bannedId", "errorType" => "banned_id", "errorKey" => "missing_banned_id" ),
+                array ( "key" => "expiryTime",  "errorType" => "expiry_time",  "errorKey" => "missing_expiry_time" )
             );
-            if (!$this->dataProvided($dataProvided, INPUT_POST)) {
+            if (!$this->fetchData($dataProvided, INPUT_POST)) {
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -146,7 +146,7 @@
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else {
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
@@ -162,7 +162,7 @@
             
             $bannedUser = $userTable->getById($bannedId);
             if (!$bannedUser) {
-                ErrorManager::addError("banned_user_error", "banned_user_non_existent");
+                ErrorManager::addError("banned_user", "banned_user_non_existent");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -194,17 +194,17 @@
          */
         public function putAction()
         {
+            // Prepare data holder.
+            $data = array();
+            
             // Ensure ID has been provided of the user object to be updated.
             $dataProvided = array (
-                array ( "key" => "id", "filter" => FILTER_SANITIZE_NUMBER_INT, "errorType" => "ban_id_error", "errorKey" => "missing_ban_id" )
+                array ( "key" => "id", "errorType" => "ban_id", "errorKey" => "missing_ban_id" )
             );
-            if (!$this->dataProvided($dataProvided, INPUT_GET)) {
+            if (!$this->fetchData($dataProvided, INPUT_GET, $data)) {
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
-            
-            // Acquire the ID, sanitised appropriately.
-            $banId = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
             
             // Assess if permissions needed are held by the user.
             if (!$this->eventManager->trigger("preExecutePut", $this)) {
@@ -212,7 +212,7 @@
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else if (Visitor::getInstance()->id != $id) {
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
@@ -223,28 +223,25 @@
             $userTable = TableCache::getTableFromCache("User");
             
             // Get ban with given ban ID.
-            $ban = $banTable->getById($banId);
+            $ban = $banTable->getById($data["id"]);
             
             // Handle invalid ban IDs.
             if (!$ban) {
-                ErrorManager::addError("ban_id_error", "invalid_ban_id");
+                ErrorManager::addError("ban_id", "invalid_ban_id");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
             
-            // Get possible data points to update.
-            $state = filter_input(INPUT_GET, "state", FILTER_SANITIZE_NUMBER_INT);
-            
             // Get banned user.
             $user = $userTable->getById($ban->bannedId);
             
-            if ($state != 0 || $state != 0) {
-                ErrorManager::addError("ban_state_error", "invalid_ban_state");
+            if ($data["state"] != 0 || $data["state"] != 1) {
+                ErrorManager::addError("ban_state", "invalid_ban_state");
                 $this->prepareExit();
                 return ActionState::DENIED;
             } else {
-                $user->banned = $state;
-                $ban->state = $state;
+                $user->banned = $data["state"];
+                $ban->state = $data["state"];
                 
                 // Save user and ban.
                 $userTable->save($user, $user->id);

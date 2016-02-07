@@ -44,7 +44,7 @@
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else {
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
@@ -70,7 +70,7 @@
                 
                 // Ensure all data provided is correctly batched in arrays.
 //                if (!is_array($ids) || !is_array($emails) || !is_array($usernames)) {
-//                    ErrorManager::addError("data_error", "invalid_data_filter_object");
+//                    ErrorManager::addError("data", "invalid_data_filter_object");
 //                    $this->prepareExit();
 //                    return ActionState::DENIED;
 //                }
@@ -90,7 +90,7 @@
             
             // If result is bad, input must have been bad.
             if (is_null($result) || !$validDataPoint) {
-                ErrorManager::addError("data_error", "invalid_data_filter_object");
+                ErrorManager::addError("data", "invalid_data_filter_object");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -106,14 +106,17 @@
          */
         public function postAction()
         {
+            // Prepare data holder.
+            $data = array();
+            
             // Ensure all data needed is posted to the server.
             $dataProvided = array (
-                array ( "key" => "email", "errorType" => "email_error", "errorKey" => "missing_email" ),
-                array ( "key" => "username", "errorType" => "username_error", "errorKey" => "missing_username" ),
-                array ( "key" => "password", "errorType" => "password_error", "errorKey" => "missing_password" ),
-                array ( "key" => "name",  "errorType" => "name_error",  "errorKey" => "missing_name" )
+                array ( "key" => "email", "errorType" => "email", "errorKey" => "missing_email" ),
+                array ( "key" => "username", "errorType" => "username", "errorKey" => "missing_username" ),
+                array ( "key" => "password", "errorType" => "password", "errorKey" => "missing_password" ),
+                array ( "key" => "name",  "errorType" => "name",  "errorKey" => "missing_name" )
             );
-            if (!$this->dataProvided($dataProvided, INPUT_POST)) {
+            if (!$this->fetchData($dataProvided, INPUT_POST, $data)) {
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -125,22 +128,16 @@
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else {
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
             }
             
-            // Acquire the sent data, sanitised appropriately.
-            $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
-            $username = filter_input(INPUT_POST, "username", FILTER_SANITIZE_STRING);
-            $password = filter_input(INPUT_POST, "password", FILTER_SANITIZE_STRING);
-            $name = filter_input(INPUT_POST, "name", FILTER_SANITIZE_STRING);
-            
             // Validate provided data.
-            UserValidation::validateUsername($username);
-            UserValidation::validateEmail($email);
-            UserValidation::passwordStrengthCheck($password);
+            UserValidation::validateUsername($data["username"]);
+            UserValidation::validateEmail($data["email"]);
+            UserValidation::passwordStrengthCheck($data["password"]);
             if (ErrorManager::hasError()) {
                 $this->prepareExit();
                 return ActionState::DENIED;
@@ -148,10 +145,10 @@
             
             // Construct a new user.
             $user = new User;
-            $user->username = $username;
-            $user->email = $email;
-            $user->password = UserSecurity::hashPassword($password);
-            $user->name = $name;
+            $user->username = $data["username"];
+            $user->email = $data["email"];
+            $user->password = UserSecurity::hashPassword($data["password"]);
+            $user->name = $data["name"];
             
             // Save the new user to database.
             $userTable = TableCache::getTableFromCache("User");
@@ -167,11 +164,14 @@
          */
         public function deleteAction()
         {
+            // Prepare data holder.
+            $data = array();
+            
             // Ensure data needed is sent to the server.
             $dataProvided = array (
-                array ( "key" => "id", "filter" => FILTER_SANITIZE_NUMBER_INT, "errorType" => "user_id_error", "errorKey" => "missing_user_id" )
+                array ( "key" => "id", "errorType" => "user_id", "errorKey" => "missing_user_id" )
             );
-            if (!$this->dataProvided($dataProvided, INPUT_GET)) {
+            if (!$this->fetchData($dataProvided, INPUT_GET, $data)) {
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -182,22 +182,19 @@
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else {
                     // TODO(Matthew): How to delete own account?
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
             }
             
-            // Acquire the sent data, sanitised appropriately.
-            $id = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
-            
             // Get user with provided delete key.
             $userTable = TableCache::getTableFromCache("User");
-            $user = $userTable->getById($id);
+            $user = $userTable->getById($data["id"]);
             
             // Error out if no subscriber was found to have the delete key.
             if (!$user) {
-                ErrorManager::addError("user_id_error", "invalid_user_id");
+                ErrorManager::addError("user_id", "invalid_user_id");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -220,17 +217,17 @@
          */
         public function putAction()
         {
+            // Prepare data holder.
+            $data = array();
+            
             // Ensure ID has been provided of the user object to be updated.
             $dataProvided = array (
-                array ( "key" => "id", "filter" => FILTER_SANITIZE_NUMBER_INT, "errorType" => "user_id_error", "errorKey" => "missing_user_id" )
+                array ( "key" => "id", "errorType" => "user_id", "errorKey" => "missing_user_id" )
             );
-            if (!$this->dataProvided($dataProvided, INPUT_GET)) {
+            if (!$this->fetchData($dataProvided, INPUT_GET)) {
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
-            
-            // Acquire the ID, sanitised appropriately.
-            $id = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
             
             // Assess if permissions needed are held by the user.
             if (!$this->eventManager->trigger("preExecutePut", $this)) {
@@ -238,7 +235,7 @@
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else if (Visitor::getInstance()->id != $id) {
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
@@ -246,43 +243,36 @@
             
             // Get user with provided user ID.
             $userTable = TableCache::getTableFromCache("User");
-            $user = $userTable->getById($id);
+            $user = $userTable->getById($data["id"]);
             
             // Handle invalid user IDs.
             if (!$user) {
-                ErrorManager::addError("user_id_error", "invalid_user_id");
+                ErrorManager::addError("user_id", "invalid_user_id");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
             
-            // Get possible data points to update.
-            $name = filter_input(INPUT_GET, "name", FILTER_SANITIZE_STRING);
-            $preferredName = filter_input(INPUT_GET, "preferredName", FILTER_SANITIZE_STRING);
-            $dateOfBirth = filter_input(INPUT_GET, "dateOfBirth", FILTER_SANITIZE_NUMBER_INT);
-            $newPassword = filter_input(INPUT_GET, "newPassword", FILTER_SANITIZE_STRING);
-            $password = filter_input(INPUT_GET, "password", FILTER_SANITIZE_STRING);
-            
             // Check new and old passwords are valid if a new password is provided.
-            if ($newPassword) {
-                UserValidation::passwordStrengthCheck($newPassword);
+            if ($data["newPassword"]) {
+                UserValidation::passwordStrengthCheck($data["newPassword"]);
                 if (Visitor::getInstance()->id == $id) {
-                    if (!$password) {
-                        ErrorManager::addError("password_error", "old_password_missing");
-                    } else if (UserSecurity::verifyPassword($password, $user->password)) {
-                        ErrorManager::addError("password_error", "old_password_incorrect");
+                    if (!$data["password"]) {
+                        ErrorManager::addError("password", "old_password_missing");
+                    } else if (UserSecurity::verifyPassword($data["password"], $user->password)) {
+                        ErrorManager::addError("password", "old_password_incorrect");
                     }
                     if (ErrorManager::hasError()) {
                         $this->prepareExit();
                         return ActionState::DENIED;
                     }
                 }
-                $user->password = UserSecurity::hashPassword($newPassword);
+                $user->password = UserSecurity::hashPassword($data["newPassword"]);
             }
             
             // Update user details.
-            $user->name = $name;
-            $user->preferredName = $preferredName;
-            $user->dateOfBirth = $dateOfBirth;
+            $user->name = $data["name"];
+            $user->preferredName = $data["preferredName"];
+            $user->dateOfBirth = $data["dateOfBirth"];
             
             // Commit changes.
             $userTable->save($user, $user->id);

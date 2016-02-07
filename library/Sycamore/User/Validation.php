@@ -36,7 +36,7 @@
          * 
          * @return boolean
          */
-        public static function validateUsername($username, $errorType = "username_error")
+        public static function validateUsername($username, $errorType = "username")
         {            
             self::isUsername($username, $errorType);
             self::isUniqueUsername($username, $errorType);
@@ -52,7 +52,7 @@
          * 
          * @return array
          */
-        public static function validateEmail($email, $errorType = "email_error")
+        public static function validateEmail($email, $errorType = "email")
         {
             self::isEmail($email, $errorType);
             self::isUniqueEmail($email, $errorType);
@@ -68,7 +68,7 @@
          * 
          * @return array
          */
-        public static function passwordStrengthCheck($password, $errorType = "password_error")
+        public static function passwordStrengthCheck($password, $errorType = "password")
         {
             $pw = Application::getConfig()->security->password;
             
@@ -114,7 +114,7 @@
          *
          * @return array
          */
-        public static function isEmail($email, $errorType = "email_error")
+        public static function isEmail($email, $errorType = "email")
         {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 ErrorManager::addError($errorType, "invalid_email_format");
@@ -131,7 +131,7 @@
          * 
          * @return array
          */
-        public static function isUniqueEmail($email, $errorType = "email_error")
+        public static function isUniqueEmail($email, $errorType = "email")
         {
             $userTable = TableCache::getTableFromCache("User");
             if (!$userTable->isEmailUnique($email)) {
@@ -149,7 +149,7 @@
          * 
          * @return array
          */
-        public static function isUsername($username, $errorType = "username_error")
+        public static function isUsername($username, $errorType = "username")
         {
             $un = Application::getConfig()->username;
             
@@ -172,7 +172,7 @@
          * 
          * @return array
          */
-        public static function isUniqueUsername($username, $errorType = "username_error")
+        public static function isUniqueUsername($username, $errorType = "username")
         {
             $userTable = TableCache::getTableFromCache("User");
             if (!$userTable->isUsernameUnique($username)) {

@@ -44,7 +44,7 @@
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else {
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
@@ -66,7 +66,7 @@
                 
                 // If emails weren't provided as an array, fail.
 //                if (!is_array($emails)) {
-//                    ErrorManager::addError("emails_error", "invalid_emails_filter_object");
+//                    ErrorManager::addError("emails", "invalid_emails_filter_object");
 //                    $this->prepareExit();
 //                    return ActionState::DENIED;
 //                }
@@ -81,7 +81,7 @@
             // TODO(Matthew): Check that bad contents of data point does result in null result. Extends for all controllers.
             // If result is bad, input must have been bad.
             if (is_null($result) || !$validDataPoint) {
-                ErrorManager::addError("data_error", "invalid_data_filter_object");
+                ErrorManager::addError("data", "invalid_data_filter_object");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -100,12 +100,15 @@
          */
         public function postAction()
         {
+            // Prepare data holder.
+            $data = array();
+            
             // Ensure all data needed is posted to the server.
             $dataProvided = array (
-                array ( "key" => "email", "errorType" => "email_error", "errorKey" => "missing_email" ),
-                array ( "key" => "name",  "errorType" => "name_error",  "errorKey" => "missing_name" )
+                array ( "key" => "email", "errorType" => "email", "errorKey" => "missing_email" ),
+                array ( "key" => "name",  "errorType" => "name",  "errorKey" => "missing_name" )
             );
-            if (!$this->dataProvided($dataProvided, INPUT_POST)) {
+            if (!$this->fetchData($dataProvided, INPUT_POST, $data)) {
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -117,19 +120,15 @@
                 if (!Visitor::getInstance()->isLoggedIn) {
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else {
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
             }
             
-            // Acquire the sent data, sanitised appropriately.
-            $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
-            $name = filter_input(INPUT_POST, "name", FILTER_SANITIZE_STRING);
-            
             // Ensure the email has valid formatting.
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                ErrorManager::addError("email_error", "invalid_email_format");
+            if (!filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
+                ErrorManager::addError("email", "invalid_email_format");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -138,16 +137,16 @@
             $newsletterSubscriberTable = TableCache::getTableFromCache("NewsletterSubscriber");
             
             // Ensure the email is unique.
-            if (!$newsletterSubscriberTable->isEmailUnique($email)) {
-                ErrorManager::addError("email_error", "email_already_subscribed_to_newsletter");
+            if (!$newsletterSubscriberTable->isEmailUnique($data["email"])) {
+                ErrorManager::addError("email", "email_already_subscribed_to_newsletter");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
             
             // Construct new newsletter subscriber.
             $newsletterSubscriber = new NewsletterSubscriber;
-            $newsletterSubscriber->name = $name;
-            $newsletterSubscriber->email = $email;
+            $newsletterSubscriber->name = $data["name"];
+            $newsletterSubscriber->email = $data["email"];
             
             // Insert new newsletter subscriber into database.
             $newsletterSubscriberTable->save($newsletterSubscriber);
@@ -170,7 +169,7 @@
             
             // If data is not provided, fail.
             if (!$deleteKey) {
-                ErrorManager::addError("newsletter_subscriber_delete_key_error", "missing_newsletter_subscriber_delete_key");
+                ErrorManager::addError("newsletter_subscriber_delete_key", "missing_newsletter_subscriber_delete_key");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
@@ -181,7 +180,7 @@
                     return ActionState::DENIED_NOT_LOGGED_IN;
                 } else {
                     // TODO(Matthew): How to delete own account?
-                    ErrorManager::addError("permission_error", "permission_missing");
+                    ErrorManager::addError("permission", "permission_missing");
                     $this->prepareExit();
                     return ActionState::DENIED;
                 }
@@ -193,7 +192,7 @@
             
             // Error out if no subscriber was found to have the delete key.
             if (!$newsletterSubscriber) {
-                ErrorManager::addError("newsletter_subscriber_delete_key_error", "invalid_newsletter_subscriber_delete_key");
+                ErrorManager::addError("newsletter_subscriber_delete_key", "invalid_newsletter_subscriber_delete_key");
                 $this->prepareExit();
                 return ActionState::DENIED;
             }
