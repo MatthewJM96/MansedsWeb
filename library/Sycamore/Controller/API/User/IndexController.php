@@ -244,7 +244,7 @@
                 }
             }
             
-            // Get user with provided delete key.
+            // Get user with provided user ID.
             $userTable = TableCache::getTableFromCache("UserTable");
             $user = $userTable->getById($id);
             
@@ -286,7 +286,7 @@
             
             // Commit changes.
             $userTable->save($user, $user->id);
-                        
+            
             // Let client know user update was successful.
             $this->response->setResponseCode(200)->send();
             return ActionState::SUCCESS;
