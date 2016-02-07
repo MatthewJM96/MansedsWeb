@@ -253,10 +253,10 @@
             }
             
             // Check new and old passwords are valid if a new password is provided.
-            if ($data["newPassword"]) {
+            if (isset($data["newPassword"])) {
                 UserValidation::passwordStrengthCheck($data["newPassword"]);
                 if (Visitor::getInstance()->id == $id) {
-                    if (!$data["password"]) {
+                    if (!isset($data["password"])) {
                         ErrorManager::addError("password", "old_password_missing");
                     } else if (UserSecurity::verifyPassword($data["password"], $user->password)) {
                         ErrorManager::addError("password", "old_password_incorrect");
@@ -270,9 +270,9 @@
             }
             
             // Update user details.
-            $user->name = $data["name"];
-            $user->preferredName = $data["preferredName"];
-            $user->dateOfBirth = $data["dateOfBirth"];
+            $user->name          = isset($data["name"])          ? $data["name"]          : $user->name;
+            $user->preferredName = isset($data["preferredName"]) ? $data["preferredName"] : $user->preferredName;
+            $user->dateOfBirth   = isset($data["dateOfBirth"])   ? $data["dateOfBirth"]   : $user->dateOfBirth;
             
             // Commit changes.
             $userTable->save($user, $user->id);
