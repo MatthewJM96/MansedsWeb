@@ -22,7 +22,10 @@
      */
     return array (
         "application_title" => "Example", // Title of the application.
-        "domain" => "example.com", // Domain of the application.
+        "cache" => array ( /* Cache Details */
+            "namespace" => "sycamore_cache", // Namespace in which all application data is cached.
+            "timeToLive" => 1800/*30 Mins*/, // How long does the data live for in cache?
+        ),
         "db" => array ( /* Database Details */
             "driver" => "pdo_mysql", // The driver to use for database interfacing.
             "params" => array (
@@ -34,28 +37,28 @@
             ),
             "tablePrefix" => "",
         ),
-        "username" => array ( /* Username Details */
-            "minimumLength" => 1,
-            "maximumLength" => 32,
+        "domain" => "example.com", // Domain of the application.
+        "email" => array ( /* Email Details */
+            
         ),
+        "language" => "en", // The language of the application.
         "security" => array ( /* Security Details */
             "enableClickjackingProtection" => true, // If true, prevents clickjacking attacks by not allowing site to be rendered in frame of another site.
-            "simpleHashAlgorithm" => "sha256", // The hashing algorithm to be used for simple hashes - no sensitive data is hashed using this.
-            "tokenPrivateKey" => "CHANGE_THIS", // The key used for signing JWTs. Do NOT share.
-            "tokenHashAlgorithm" => "HS256", // The hashing algorithm used for the signing of JWTs.
-            "sessionLength" => 43200/*12 Hours*/, // How long should log in session last if not extended?
-            "sessionLengthExtended" => 2629740,/*~1 Month*/ // How long should an extended log-in session last?
             "password" => array ( /* Password Security Details */
                 "strictness" => "normal", // How secure must passwords be? Normal -> >8 characters long, include numbers and letters. High -> Normal + include capital letter. Strict -> High + include symbol. Retroactively checks passwords.
                 "hashingStrength" => 11, // How strong should the hash be? Higher is stronger, but requires more CPU time.
                 "minimumLength" => 8,
                 "maximumLength" => 48,
             ),
+            "simpleHashAlgorithm" => "sha256", // The hashing algorithm to be used for simple hashes - no sensitive data is hashed using this.
+            "sessionLength" => 43200/*12 Hours*/, // How long should log in session last if not extended?
+            "sessionLengthExtended" => 2629740,/*~1 Month*/ // How long should an extended log-in session last?
+            "tokenPrivateKey" => "CHANGE_THIS", // The key used for signing JWTs. Do NOT share.
+            "tokenHashAlgorithm" => "HS256", // The hashing algorithm used for the signing of JWTs.
             "verifyTokenLifetime" => 21600/*6 Hours*/ // How long does a verification token last?
         ),
-        "language" => "en", // The language of the application.
-        "cache" => array ( /* Cache Details */
-            "timeToLive" => 1800/*30 Mins*/, // How long does the data live for in cache?
-            "namespace" => "sycamore_cache" // Namespace in which all application data is cached.
-        )
+        "username" => array ( /* Username Details */
+            "minimumLength" => 1,
+            "maximumLength" => 32,
+        ),
     );
