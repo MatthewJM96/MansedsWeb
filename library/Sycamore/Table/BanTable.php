@@ -32,16 +32,6 @@
             parent::__construct("acl_group_user_maps", new Ban, null);
         }
         
-        public function getByCreator($id, $forceDbFetch = false)
-        {
-            return $this->getByKey("creatorId", $id, $forceDbFetch);
-        }
-        
-        public function getByCreators($ids, $forceDbFetch = false)
-        {
-            return $this->getByKeyInCollection("creatorId", $id, $forceDbFetch);
-        }
-        
         public function getByBanned($id, $forceDbFetch = false)
         {
             return $this->getByUniqueKey("bannedId", $id, $forceDbFetch);
