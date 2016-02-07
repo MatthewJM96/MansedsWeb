@@ -53,7 +53,12 @@
             "invalid_username" => "The username provided was not a valid username.",
             "invalid_user_id" => "The user ID provided was not a valid ID.",
             "missing_user_id" => "No user ID was provided.",
-            "permission_missing" => "You are missing the needed permission to complete this action."
+            "permission_missing" => "You are missing the needed permission to complete this action.",
+            "missing_banned_id" => "No ID was provided for the user to be banned.",
+            "missing_expiry_time" => "No expiry time was provided.",
+            "banned_user_non_existent" => "The user to be banned does not exist.",
+            "missing_ban_id" => "A ban ID needs to be provided.",
+            "invalid_ban_id" => "The ban ID provided was invalid.",
         );
         
         public function __construct()
