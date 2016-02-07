@@ -199,7 +199,8 @@
             
             // Ensure ID has been provided of the user object to be updated.
             $dataProvided = array (
-                array ( "key" => "id", "errorType" => "ban_id", "errorKey" => "missing_ban_id" )
+                array ( "key" => "id", "errorType" => "ban_id", "errorKey" => "missing_ban_id" ),
+                array ( "key" => "state", "errorType" => "ban_state", "errorKey" => "missing_ban_state" )
             );
             if (!$this->fetchData($dataProvided, INPUT_GET, $data)) {
                 $this->prepareExit();
