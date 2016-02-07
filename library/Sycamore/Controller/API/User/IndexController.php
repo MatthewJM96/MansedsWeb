@@ -160,7 +160,7 @@
         }
         
         /**
-         * Executes the process of deleting a desired user.
+         * Executes the process of deleting the desired user.
          */
         public function deleteAction()
         {
