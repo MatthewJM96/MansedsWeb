@@ -1,7 +1,7 @@
 <?php
 
 /* 
- * Copyright (C) 2016 Matthew
+ * Copyright (C) 2016 Matthew Marshall
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,15 +21,14 @@
     
     use Sycamore\Row\RowObject;
     
-    class Newsletter extends RowObject
+    class MailMessage extends RowObject
     {
         // Admin Token Required:
-        public $subject;
-        public $body;
-        public $cancelled;
+        public $serialisedMessage;
         public $sendTime;
-        ///* -1 indicates send to all users.
-        public $recipientGroup;
+        public $purpose;
+        public $cancelled;
         // Uneditable in API:
         public $sent;
+        public $cronJob;
     }

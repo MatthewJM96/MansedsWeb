@@ -1,7 +1,7 @@
 <?php
 
 /* 
- * Copyright (C) 2016 Matthew
+ * Copyright (C) 2016 Matthew Marshall
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,21 +19,21 @@
 
     namespace Sycamore\Table;
     
-    use Sycamore\Row\Newsletter;
+    use Sycamore\Row\MailMessage;
     use Sycamore\Table\ObjectTable;
     
-    class Newsletter extends ObjectTable
+    class MailMessage extends ObjectTable
     {
         /**
          * Sets up the result set prototype and then created the table gateway.
          */
         public function __construct()
         {
-            parent::__construct("newsletters", new Newsletter);
+            parent::__construct("mail_messages", new MailMessage());
         }
         
         /**
-         * Gets a newsletter object by their sent status.
+         * Gets mail message objects by their sent status.
          * 
          * @param bool $sent
          * @param bool $forceDbFetch
@@ -46,7 +46,7 @@
         }
         
         /**
-         * Gets a newsletter object by their cancelled status.
+         * Gets mail message objects by their cancelled status.
          * 
          * @param bool $cancelled
          * @param bool $forceDbFetch
@@ -59,7 +59,7 @@
         }
         
         /**
-         * Get's newsletters to be sent after a certain time.
+         * Gets mail messages to be sent after a certain time.
          * 
          * @param int $sendTimeMin
          * @param bool $forceDbFetch
@@ -72,7 +72,7 @@
         }
         
         /**
-         * Get's newsletters to be sent before a certain time.
+         * Gets mail messages to be sent before a certain time.
          * 
          * @param int $sendTimeMax
          * @param bool $forceDbFetch
@@ -85,7 +85,7 @@
         }
         
         /**
-         * Get's newsletters to be sent within a time range.
+         * Gets mail messages to be sent within a time range.
          * 
          * @param int $sendTimeMin
          * @param int $sendTimeMax
@@ -98,3 +98,4 @@
             return $this->getByKeyBetween("sendTime", $sendTimeMin, $sendTimeMax, $forceDbFetch);
         }
     }
+    
