@@ -122,7 +122,7 @@
             
             $cacheName = $table;
             
-            $cacheName .= static::generateCacheNameHelper($where);
+            $cacheName .= $this->generateCacheNameHelper($where);
             
             return $cacheName;
         }
@@ -159,7 +159,6 @@
                     $string .= preg_replace("#[\\\/.]+#", "_", strval($where));
                     break;
             }
-            $string = str_replace(array("\\", "/"), "_", $string);
-            return $string;
+            return str_replace(array("\\", "/"), "_", $string);
         }
     }
