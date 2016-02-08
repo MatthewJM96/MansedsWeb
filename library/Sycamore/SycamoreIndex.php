@@ -30,10 +30,9 @@
         /**
          * Initialises the Sycamore autoloader, application and front controller.
          */
-        public static function run()
+        public static function run($appDir)
         {
-            define("APP_DIRECTORY", dirname(__DIR__));
-            define("PUBLIC_DIRECTORY", dirname(__FILE__));
+            define("APP_DIRECTORY", $appDir);
             define("LIBRARY_DIRECTORY", APP_DIRECTORY."/library");
             define("CONFIG_DIRECTORY", APP_DIRECTORY."/conf");
             define("SYCAMORE_DIRECTORY", LIBRARY_DIRECTORY."/Sycamore");
