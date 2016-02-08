@@ -66,29 +66,40 @@
          */
         protected function prepareMailer()
         {
-            $emailConf = Application::getConfig()->email;
-            
-            $spec = array();
-            $spec["type"] = strtolower($emailConf->transport);
-            if ($spec["type"] == "smtp" || $spec["type"] == "file") {
-                $optionsConf = $emailConf->options;
-                $connConf = $optionsConf->connection;
-                
-                $spec["options"] = array();
-                $spec["options"]["name"] = $optionsConf->name;
-                $spec["options"]["host"] = $optionsConf->host;
-                $spec["options"]["port"] = $optionsConf->port;
-                $spec["options"]["connection_class"] = $connConf->class;
-                
-                $spec["options"]["connection_config"] = array();
-                $spec["options"]["connection_config"]["username"] = $connConf->username;
-                $spec["options"]["connection_config"]["password"] = $connConf->password;
-                if (!empty($connConf->ssl)) {
-                    $spec["options"]["connection_config"]["ssl"] = $connConf->ssl;
-                }
-            }
-            
-            $this->transport = TransportFactory::create($spec);
+			$cacheManager = new DataCache();
+			$cacheManager->initialise("mailer", "transport");
+
+			$cachedResult = $cacheManager->getCachedData();
+			
+			if (!$cachedResult) {
+				$emailConf = Application::getConfig()->email;
+				
+				$spec = array();
+				$spec["type"] = strtolower($emailConf->transport);
+				if ($spec["type"] == "smtp" || $spec["type"] == "file") {
+					$optionsConf = $emailConf->options;
+					$connConf = $optionsConf->connection;
+					
+					$spec["options"] = array();
+					$spec["options"]["name"] = $optionsConf->name;
+					$spec["options"]["host"] = $optionsConf->host;
+					$spec["options"]["port"] = $optionsConf->port;
+					$spec["options"]["connection_class"] = $connConf->class;
+					
+					$spec["options"]["connection_config"] = array();
+					$spec["options"]["connection_config"]["username"] = $connConf->username;
+					$spec["options"]["connection_config"]["password"] = $connConf->password;
+					if (!empty($connConf->ssl)) {
+						$spec["options"]["connection_config"]["ssl"] = $connConf->ssl;
+					}
+				}
+				
+				$this->transport = TransportFactory::create($spec);
+				
+                $cacheManager->setCachedData($this->transport);
+			} else {
+			    $this->transport = $cachedResult;
+			}
         }
         
         /**
