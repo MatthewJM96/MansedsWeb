@@ -20,7 +20,7 @@
     namespace Sycamore\Utils;
 
     /**
-     * Simple wrapper of encode and decode methodologies.
+     * Simple wrapper of encode and decode methodologies for JSONifiable data.
      */
     class APIData
     {
