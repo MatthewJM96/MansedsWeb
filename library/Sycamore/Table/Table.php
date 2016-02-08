@@ -268,4 +268,14 @@
             
             return $result;
         }
+        
+        /**
+         * Returns the last insert value of the TableGateway instance.
+         * 
+         * @return int
+         */
+        public function lastInsertValue()
+        {
+            return $this->tableGateway->getLastInsertValue();
+        }
     }
