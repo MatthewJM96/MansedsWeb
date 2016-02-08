@@ -57,6 +57,7 @@
          * @param \Sycamore\Mail\Message $message
          * @param string $delayTo
          * @param string $purpose
+         * @param int $creationTime
          */
         public function sendMessage(Message $message, $delayTo = self::NO_DELAY, $purpose = NULL, $creationTime = NULL)
         {
