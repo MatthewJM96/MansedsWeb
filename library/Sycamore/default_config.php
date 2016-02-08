@@ -26,6 +26,9 @@
             "namespace" => "sycamore_cache", // Namespace in which all application data is cached.
             "timeToLive" => 1800/*30 Mins*/, // How long does the data live for in cache?
         ),
+        "cron" => array ( /* Cron Details */
+            "directory" => APP_DIRECTORY . "/cron/", // Location where temporary cron files are stored.
+        ),
         "db" => array ( /* Database Details */
             "driver" => "pdo_mysql", // The driver to use for database interfacing.
             "params" => array (
