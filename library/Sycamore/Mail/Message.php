@@ -55,7 +55,7 @@
             
             // Construct body.
             $body = new Mime\Message();
-            $body->setParts($this->bodyParts);
+            $body->setParts(array_merge($this->bodyParts, $this->attachments));
             
             // Set body.
             $this->setBody($body);
