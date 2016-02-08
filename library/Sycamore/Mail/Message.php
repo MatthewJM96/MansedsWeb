@@ -19,6 +19,8 @@
 
     namespace Sycamore\Mail;
     
+    use Sycamore\Utils\TableCache;
+    
     use Zend\Mail\Message as ZendMessage;
     use Zend\Mime;
     
@@ -30,36 +32,12 @@
         
         protected $finalised = false;
         
+        /**
+         * Prepares the construction of the body.
+         */
         public function prepareBody()
         {
-            // Get header HTML and general CSS.
-        }
-        
-        public function addBlock($blockName, $content)
-        {
-            // Get block and inject content.
-        }
-        
-        /**
-         * Adds an attachment to the message.
-         * 
-         * @param string $type
-         * @param \resource $file
-         * @param string $filename
-         * 
-         * @return \Sycamore\Mail\Message
-         */
-        public function addAttachment($type, \resource $file, $filename, $encoding = Mime\Mime::ENCODING_BASE64)
-        {
-            $attachment = new Mime\Part($file);
-            $attachment->type = $type;
-            $attachment->filename = $filename;
-            $attachment->disposition = Mime\Mime::DISPOSITION_ATTACHMENT;
-            $attachment->encoding = $encoding;
-            
-            $this->attachments[] = $attachment;
-            
-            return $this;
+            $this->addHtmlBlock("header");
         }
         
         /**
@@ -84,6 +62,54 @@
             
             // Set finalised flag and return.
             $this->finalised = true;
+            return $this;
+        }
+        
+        /**
+         * Adds an HTML block to the collection of body parts to be assembled.
+         * Throws InvalidArgumentException if the block template specified does not exist.
+         * 
+         * @param string $blockName
+         * @param string $content
+         * @throws \InvalidArgumentException
+         */
+        public function addHtmlBlock($blockName, $content = NULL)
+        {
+            $blockTemplateTable = TableCache::getTableFromCache("EmailBlockTemplate");
+            $blockTemplate = $blockTemplateTable->getByName($blockName);
+            
+            if (!$blockTemplate) {
+                throw new \InvalidArgumentException("The provided block name was invalid.");
+            }
+            
+            $block = $blockTemplate->template;
+            if (!is_null($content)) {
+                $block = str_replace("{CONTENT}", $content, $block);
+            }
+            
+            $bodyPart = new Mime\Part($block);
+            $bodyPart->type = "text/html";
+        }
+        
+        /**
+         * Adds an attachment to the message.
+         * 
+         * @param string $type
+         * @param \resource $file
+         * @param string $filename
+         * 
+         * @return \Sycamore\Mail\Message
+         */
+        public function addAttachment($type, \resource $file, $filename, $encoding = Mime\Mime::ENCODING_BASE64)
+        {
+            $attachment = new Mime\Part($file);
+            $attachment->type = $type;
+            $attachment->filename = $filename;
+            $attachment->disposition = Mime\Mime::DISPOSITION_ATTACHMENT;
+            $attachment->encoding = $encoding;
+            
+            $this->attachments[] = $attachment;
+            
             return $this;
         }
     }
