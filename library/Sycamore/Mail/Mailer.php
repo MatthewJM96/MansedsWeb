@@ -43,7 +43,15 @@
          */
         protected $transport;
         
-        
+        /**
+         * Sends a message via the mailer's transport.
+         * 
+         * @param \Sycamore\Mail\Message $message
+         */
+        public function sendMessage(Message $message)
+        {
+            $this->transport->send($message);
+        }
         
         /**
          * Protected constructor. Use {@link getInstance()} instead.
