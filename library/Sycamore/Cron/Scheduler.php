@@ -92,15 +92,53 @@
         
         /**
          * Removes the specified cron jobs.
+         * Cron jobs can be expressed explicitly as a \Sycamore\Cron\Job or as regex string.
          * 
-         * @param string|array $cronJobs
+         * @param string|\Sycamore\Cron\Job|array $cronJobs
          * @param string $cronFile
          * 
          * @return \Sycamore\Cron\Scheduler
          */
         public function removeCronJobs($cronJobs, $cronFile = "cron.txt")
         {
+            if ((!is_string($cronJobs) && !($cronJobs instanceof Job) && !is_array($cronJobs)) || !is_string($cronFile)) {
+                throw new \InvalidArgumentException("Cron jobs provided were either not in string, \Sycamore\Cron\Job or array form, or provided cron file handle was not in string form.");
+            }
             
+            // Construct file path.
+            $filePath = $this->cronDir . $cronFile;
+            
+            // Prepare temporary file.
+            $this->writeCronJobsToFile($filePath);
+            
+            // Read existing tasks into an array.
+            $existingCronJobs = file($filePath, FILE_IGNORE_NEW_LINES);
+            
+            // If no cron tasks exist, fail.
+            if (empty($existingCronJobs)) {
+                $this->removeFile($filePath);
+                throw new \InvalidArgumentException("No cron jobs exist as provided");
+            }
+            
+            // Get starting count of cron tasks.
+            $existingJobCount = count($existingCronJobs);
+            
+            if ($cronJobs instanceof Job) {
+                $existingCronJobs = preg_grep("/" . $cronJobs->getJob() . "/", $existingCronJobs, PREG_GREP_INVERT);
+            } else if (is_array($cronJobs)) {
+                foreach ($cronJobs as $cronJob) {
+                    if ($cronJob instanceof Job) {
+                        $existingCronJobs = preg_grep("/" . $cronJobs->getJob() . "/", $existingCronJobs, PREG_GREP_INVERT);
+                    } else if (is_string($cronJob)) {
+                        $existingCronJobs = preg_grep($cronJobs, $existingCronJobs, PREG_GREP_INVERT);
+                    }
+                }
+            } else {
+                $existingCronJobs = preg_grep($cronJobs, $existingCronJobs, PREG_GREP_INVERT);
+            }
+            
+            // Return this, having removed file, and recreated cron tab without removed cron jobs if any were to be removed.
+            return ($existingJobCount === count($existingCronJobs)) ? $this->removeFile($filePath) : $this->removeCronTab($filePath)->addCronJobs($existingCronJobs);
         }
         
         /**
