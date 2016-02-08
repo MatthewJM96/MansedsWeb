@@ -31,7 +31,7 @@
          */
         public function __construct()
         {
-            parent::__construct("newsletter_subscribers", new NewsletterSubscriber, null);
+            parent::__construct("newsletter_subscribers", new NewsletterSubscriber);
         }
         
         /**

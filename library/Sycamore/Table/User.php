@@ -29,7 +29,7 @@
          */
         public function __construct()
         {
-            parent::__construct("users", new User, null);
+            parent::__construct("users", new User);
         }
         
         /**

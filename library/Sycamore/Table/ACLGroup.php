@@ -29,7 +29,7 @@
          */
         public function __construct()
         {
-            parent::__construct("acl_groups", new ACLGroup, null);
+            parent::__construct("acl_groups", new ACLGroup);
         }
         
         /**

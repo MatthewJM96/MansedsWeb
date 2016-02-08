@@ -29,7 +29,7 @@
          */
         public function __construct()
         {
-            parent::__construct("acl_group_route_maps", new ACLGroupRouteMap, null);
+            parent::__construct("acl_group_route_maps", new ACLGroupRouteMap);
         }
         
         /**

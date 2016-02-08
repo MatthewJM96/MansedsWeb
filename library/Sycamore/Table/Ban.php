@@ -29,7 +29,7 @@
          */
         public function __construct()
         {
-            parent::__construct("bans", new Ban, null);
+            parent::__construct("bans", new Ban);
         }
         
         public function getByBanned($id, $forceDbFetch = false)

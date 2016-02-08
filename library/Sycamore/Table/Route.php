@@ -29,6 +29,6 @@
          */
         public function __construct()
         {
-            parent::__construct("route", new Route, null);
+            parent::__construct("route", new Route);
         }
     }

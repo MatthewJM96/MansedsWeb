@@ -29,7 +29,7 @@
          */
         public function __construct()
         {
-            parent::__construct("newsletters", new Newsletter, null);
+            parent::__construct("newsletters", new Newsletter);
         }
         
         /**
