@@ -19,4 +19,4 @@
 
     require(dirname(__DIR__)."/library/Sycamore/SycamoreIndex.php");
     
-    Sycamore\SycamoreIndex::run();
+    Sycamore\SycamoreIndex::run(dirname(__DIR__));
