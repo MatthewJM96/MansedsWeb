@@ -22,8 +22,6 @@
     use Sycamore\Row\Action;
     use Sycamore\Table\ObjectTable;
     
-    use Zend\Db\ResultSet\ResultSet;
-    
     class Action extends ObjectTable
     {
         /**
