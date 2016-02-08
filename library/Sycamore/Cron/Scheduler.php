@@ -26,6 +26,13 @@
     class Scheduler
     {
         /**
+         * Singleton insance of Scheduler.
+         *
+         * @var \Sycamore\Cron\Scheduler
+         */
+        protected static $instance;
+        
+        /**
          * Stores the directory for cron files.
          *
          * @var string 
@@ -35,7 +42,7 @@
         /**
          * Acquires the directory for cron files.
          */
-        public function __construct()
+        protected function __construct()
         {
             $this->cronDir = Application::getConfig()->cron->directory;
         }
@@ -197,5 +204,18 @@
         protected function cronFileExists($filePath)
         {
             return file_exists($filePath);            
+        }
+        
+        /**
+        * Gets the scheduler instance.
+        *
+        * @return \Sycamore\Cron\Scheduler
+        */
+        public static final function getInstance()
+        {
+            if (!self::$instance) {
+                self::$instance = new self();
+            }
+            return self::$instance;
         }
     }
