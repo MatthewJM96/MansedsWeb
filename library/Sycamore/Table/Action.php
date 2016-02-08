@@ -29,7 +29,7 @@
          */
         public function __construct()
         {
-            parent::__construct("actions", new Action, null);
+            parent::__construct("actions", new Action);
         }
         
         /**
