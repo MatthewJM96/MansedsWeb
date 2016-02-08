@@ -49,9 +49,9 @@
          */
         protected $cacheName;
          
-        public function initialise($table, $where = null, $extra = "")
+        public function initialise($location, $where = null, $extra = "")
         {
-            $this->cacheName = $this->generateCacheName($table . $extra, $where);
+            $this->cacheName = $this->generateCacheName($location . $extra, $where);
             $this->cache = $this->getCache();
             $this->initialised = true;
         }
