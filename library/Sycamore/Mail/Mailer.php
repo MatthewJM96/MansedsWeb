@@ -20,7 +20,13 @@
     namespace Sycamore\Mail;
     
     use Sycamore\Application;
+    use Sycamore\Visitor;
+    use Sycamore\Cron\Job;
+    use Sycamore\Cron\Scheduler;
     use Sycamore\Mail\Message;
+    use Sycamore\Row\MailMessage;
+    use Sycamore\Utils\ObjectData;
+    use Sycamore\Utils\TableCache;
     
     use Zend\Mail\Transport\Factory as TransportFactory;
     
@@ -29,6 +35,8 @@
      */
     class Mailer
     {
+        const NO_DELAY = "none";
+        
         /**
          * Singleton insance of Mailer.
          *
@@ -47,10 +55,53 @@
          * Sends a message via the mailer's transport.
          * 
          * @param \Sycamore\Mail\Message $message
+         * @param string $delayTo
+         * @param string $purpose
          */
-        public function sendMessage(Message $message)
+        public function sendMessage(Message $message, $delayTo = self::NO_DELAY, $purpose = NULL, $creationTime = NULL)
         {
-            $this->transport->send($message);
+            if ($delayTo === self::NO_DELAY) {
+                $this->transport->send($message);
+            } else {
+                if (!is_string($delayTo)) {
+                    throw new \InvalidArgumentException("Delay is expected to be a string.");
+                }
+                
+                // Get current timestamp.
+                $time = time();
+                
+                // Grab the mail message table.
+                $mailMessageTable = TableCache::getTableFromCache("MailMessage");
+                
+                // Prepare the new mail message.
+                $mailMessage = new MailMessage();
+                $mailMessage->serialisedMessage = ObjectData::encode($message);
+                $mailMessage->sendTime = strtotime($delayTo);
+                $mailMessage->purpose = (is_string($purpose) ? $purpose : "");
+                $mailMessage->sent = 0;
+                $mailMessage->cancelled = 0;
+                $mailMessage->lastUpdateTime = (is_int($creationTime) ? $creationTime : $time);
+                $mailMessage->lastUpdatorId = Visitor::getInstance()->id;
+                $mailMessage->creationTime = (is_int($creationTime) ? $creationTime : $time);
+                $mailMessage->creatorId = Visitor::getInstance()->id;
+                
+                // Save Message to database and get ID.
+                $mailMessageTable->save($mailMessage);
+                $messageId = $mailMessageTable->lastInsertValue();
+                
+                // Create a new cron job.
+                $task = new Job();
+                $task->setTask("php " . APP_DIRECTORY . "/public/index.php email $messageId");
+                $task->setWhenUtc($delayTo);
+                
+                // Update mail message with cron job string for deleting purposes.
+                $mailMessage->id = $messageId;
+                $mailMessage->cronJob = $task->getJob();
+                $mailMessageTable->save($mailMessage, $messageId);
+                
+                // Schedule the cron job.
+                Scheduler::getInstance()->addCronJobs($task);
+            }
         }
         
         /**
