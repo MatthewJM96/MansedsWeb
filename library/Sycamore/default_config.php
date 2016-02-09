@@ -56,6 +56,10 @@
             )
         ),
         "language" => "en", // The language of the application.
+        "newsletter" => array ( /* Newsletter Details */
+            "email" => "john.smith@example.com", // The email to send newsletters from.
+            "attachmentDirectory" => APP_DIRECTORY . "/attachments/", // Location where temporary attachment files are stored.
+        ),
         "security" => array ( /* Security Details */
             "enableClickjackingProtection" => true, // If true, prevents clickjacking attacks by not allowing site to be rendered in frame of another site.
             "password" => array ( /* Password Security Details */
