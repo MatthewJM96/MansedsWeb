@@ -59,6 +59,19 @@
         }
         
         /**
+         * Gets mail message objects by their purpose.
+         * 
+         * @param string $purpose
+         * @param bool $forceDbFetch
+         * 
+         * @return \Zend\Db\ResultSet\ResultSet
+         */
+        public function getByPurpose($purpose, $forceDbFetch = false)
+        {
+            return $this->getByKey("purpose", $purpose, $forceDbFetch);
+        }
+        
+        /**
          * Gets mail messages to be sent after a certain time.
          * 
          * @param int $sendTimeMin
