@@ -32,6 +32,8 @@
         
         protected $finalised = false;
         
+        protected $templateParts = array();
+        
         /**
          * Prepares the construction of the body.
          */
@@ -89,6 +91,9 @@
             
             $bodyPart = new Mime\Part($block);
             $bodyPart->type = "text/html";
+            
+            $this->bodyParts[] = $bodyPart;
+            $this->templateParts[] = array ( $blockName, $content );
         }
         
         /**
@@ -111,6 +116,39 @@
             $this->attachments[] = $attachment;
             
             return $this;
+        }
+        
+        /**
+         * Adds an attachment directly.
+         * 
+         * @param \Zend\Mime\Part $attachment
+         * 
+         * @return \Sycamore\Mail\Message
+         */
+        public function addAttachmentDirect(Mime\Part $attachment) {
+            $this->attachments[] = $attachment;
+            
+            return $this;
+        }
+        
+        /**
+         * Returns the constituent template parts of the message.
+         * 
+         * @return array
+         */
+        public function getConstituentTemplates()
+        {
+            return $this->templateParts;
+        }
+        
+        /**
+         * Returns the attachments associated with this message.
+         * 
+         * @return array
+         */
+        public function getAttachments()
+        {
+            return $this->attachments;
         }
     }
     
