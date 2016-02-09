@@ -19,9 +19,14 @@
 
     namespace Sycamore\Controller\API\Newsletter;
     
+    use Sycamore\Application;
+    use Sycamore\ErrorManager;
     use Sycamore\Visitor;
     use Sycamore\Controller\Controller;
-    use Sycamore\Row\Newsletter;
+    use Sycamore\Enums\ActionState;
+    use Sycamore\Mail\Mailer;
+    use Sycamore\Mail\Message;
+    use Sycamore\Utils\ObjectData;
     
     /**
      * Controller for handling newsletters.
@@ -47,14 +52,14 @@
             // Attempt to acquire the provided data.
             $dataJson = filter_input(INPUT_GET, "data");
             
-            // Grab the newsletter table.
-            $newsletterTable = TableCache::getTableFromCache("Newsletter");
+            // Grab the mail message table.
+            $mailMessageTable = TableCache::getTableFromCache("MailMessage");
             
             // Fetch newsletters with given values, or all newsletters if no values provided. 
             $result = null;
             $validDataPoint = true;
             if (!$dataJson) {
-                $result = $newsletterTable->fetchAll();
+                $result = $mailMessageTable->getByPurpose("newsletter");
             } else {
                 // Fetch only users matching given data.
                 $data = APIData::decode($dataJson);
@@ -63,24 +68,31 @@
                 $sent         = (isset($data["sent"])        ? $data["sent"]        : NULL);
                 $sendTimeMin  = (isset($data["sendTimeMin"]) ? $data["sendTimeMin"] : NULL);
                 $sendTimeMax  = (isset($data["sendTimeMax"]) ? $data["sendTimeMax"] : NULL);
-                                
+                
+                // TODO(Matthew): Faster with one specialised getBySelect?
                 // Fetch matching users, storing with ID as key for simple overwrite to avoid duplicates.
                 $result = array();
+                $intermediateResult = array();
                 if (!is_null($ids)) {
-                    $validDataPoint = $newsletterTable->getByDataPoint($ids, "getByIds", $result);
+                    $validDataPoint = $mailMessageTable->getByDataPoint($ids, "getByIds", $intermediateResult);
                 }
                 if (!is_null($cancelled)) {
-                    $validDataPoint = $newsletterTable->getByDataPoint($cancelled, "getByCancelled", $result);
+                    $validDataPoint = $mailMessageTable->getByDataPoint($cancelled, "getByCancelled", $intermediateResult);
                 }
                 if (!is_null($sent)) {
-                    $validDataPoint = $newsletterTable->getByDataPoint($sent, "getBySent", $result);
+                    $validDataPoint = $mailMessageTable->getByDataPoint($sent, "getBySent", $intermediateResult);
                 }
                 if ($sendTimeMin > 0 && $sendTimeMax > 0) {
-                    $validDataPoint = $newsletterTable->getByDataPointRange($sendTimeMin, $sendTimeMax, "getBySendTimeRange", $result);
+                    $validDataPoint = $mailMessageTable->getByDataPointRange($sendTimeMin, $sendTimeMax, "getBySendTimeRange", $intermediateResult);
                 } else if ($sendTimeMin > 0) {
-                    $validDataPoint = $newsletterTable->getByDataPoint($sendTimeMin, "getBySendTimeMin", $result);
+                    $validDataPoint = $mailMessageTable->getByDataPoint($sendTimeMin, "getBySendTimeMin", $intermediateResult);
                 } else if ($sendTimeMax > 0) {
-                    $validDataPoint = $newsletterTable->getByDataPoint($sendTimeMax, "getBySendTimeMax", $result);
+                    $validDataPoint = $mailMessageTable->getByDataPoint($sendTimeMax, "getBySendTimeMax", $intermediateResult);
+                }
+                foreach($intermediateResult as $mailMessage) {
+                    if ($mailMessage->purpose == "newsletter") {
+                        $result[] = $mailMessage;
+                    }
                 }
             }
             
@@ -110,9 +122,7 @@
             // Ensure all data needed is posted to the server.
             $dataProvided = array (
                 array ( "key" => "subject", "errorType" => "subject", "errorKey" => "missing_subject" ),
-                array ( "key" => "body", "errorType" => "body", "errorKey" => "missing_body" ),
-                array ( "key" => "sendTime", "errorType" => "send_time", "errorKey" => "missing_send_time" ),
-                array ( "key" => "recipientGroup", "errorType" => "recipient_group", "errorKey" => "missing_recipient_group" ),
+                array ( "key" => "bodyBlocks", "errorType" => "body", "errorKey" => "missing_body_blocks" ),
             );
             if (!$this->fetchData($dataProvided, INPUT_POST, $data)) {
                 $this->prepareExit();
@@ -130,25 +140,56 @@
                 }
             }
             
-            // Grab the newsletter table.
-            $newsletterTable = TableCache::getTableFromCache("Newsletter");
+            // Fail if invalid data type.
+            if (!is_string($data["subject"])) {
+                ErrorManager::addError("subject", "invalid_subject");
+            }
+            if (isset($data["sendTime"]) && !is_string($data["sendTime"])) {
+                ErrorManager::addError("send_time", "invalid_send_time");
+            }
+            if (!is_array($data["bodyBlocks"])) {
+                ErrorManager::addError("body", "invalid_body_blocks");
+            }
+            if (isset($data["attachments"]) && !is_array($data["attachments"])) {
+                ErrorManager::addError("attachments", "invalid_attachments");
+            }
+            if (ErrorManager::hasError()) {
+                $this->prepareExit();
+                return ActionState::DENIED;
+            }
             
-            // Construct newsletter entry.
-            $time = time();
-            $newsletter = new Newsletter;
-            $newsletter->creatorId = Visitor::getInstance()->id;
-            $newsletter->creationTime = $time;
-            $newsletter->lastUpdatorId = Visitor::getInstance()->id;
-            $newsletter->lastUpdateTime = $time;
-            $newsletter->subject = $data["subject"];
-            $newsletter->body = $data["body"];
-            $newsletter->cancelled = 0;
-            $newsletter->sent = 0;
-            $newsletter->recipientGroup = $data["recipientGroup"];
-            $newsletter->sendTime = $data["sendTime"];
+            // Attempt to construct message.
+            $message = new Message();
+            $message->prepareBody();
+            foreach ($data["bodyBlocks"] as $bodyBlock) {
+                if (!is_array($bodyBlock) || count($bodyBlock) != 2) {
+                    ErrorManager::addError("body", "invalid_body_block");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+                $message->addHtmlBlock($bodyBlock[0], $bodyBlock[1]);
+            }
+            if (isset($data["attachments"])) {
+                foreach ($data["attachments"] as $attachment) {
+                    if (!is_array($attachment) || count($attachment) != 2) {
+                        ErrorManager::addError("attachments", "invalid_attachment");
+                        $this->prepareExit();
+                        return ActionState::DENIED;
+                    }
+                    $file = fopen(Application::getConfig()->newsletter->attachmentDirectory . $attachment[1]);
+                    $message->addAttachment($attachment[0], $file, $attachment[1]);
+                }
+            }
+            $message->finaliseBody();
+                        
+            // TODO(Matthew): Add subject, recipients and sender.
             
-            // Save new ban.
-            $newsletterTable->save($newsletter);
+            // Schedule message if sendTime provided, otherwise send now.
+            if (isset($data["sendTime"])) {
+                Mailer::getInstance()->sendMessage($message, $data["sendTime"], "newsletter", time());
+            } else {
+                Mailer::getInstance()->sendMessage($message);
+            }
             
             // Let client know newsletter subscription creation was successful.
             $this->response->setResponseCode(200)->send();
@@ -184,8 +225,8 @@
             }
             
             // Get newsletter with provided ID.
-            $newsletterTable = TableCache::getTableFromCache("Newsletter");
-            $newsletter = $newsletterTable->getById($data["id"]);
+            $mailMessageTable = TableCache::getTableFromCache("MailMessage");
+            $newsletter = $mailMessageTable->getById($data["id"]);
             
             // Error out if no subscriber was found to have the ID.
             if (!$newsletter) {
@@ -194,8 +235,11 @@
                 return ActionState::DENIED;
             }
             
+            // Stop a message sending.
+            Mailer::getInstance()->stopMessageSend($newsletter, true);
+            
             // Delete newsletter.
-            $newsletterTable->deleteById($newsletter->id);
+            $mailMessageTable->deleteById($newsletter->id);
             
             // Let client know newsletter deletion was successful.
             $this->response->setResponseCode(200)->send();
@@ -238,8 +282,8 @@
             }
             
             // Get newsletter with provided ID.
-            $newsletterTable = TableCache::getTableFromCache("Newsletter");
-            $newsletter = $newsletterTable->getById($data["id"]);
+            $mailMessageTable = TableCache::getTableFromCache("MailMessage");
+            $newsletter = $mailMessageTable->getById($data["id"]);
             
             // Handle invalid newsletter IDs.
             if (!$newsletter) {
@@ -248,15 +292,84 @@
                 return ActionState::DENIED;
             }
             
-            // Update newsletter details.
-            $newsletter->subject        = isset($data["subject"])        ? $data["subject"]        : $newsletter->subject;
-            $newsletter->body           = isset($data["body"])           ? $data["body"]           : $newsletter->body;
-            $newsletter->cancelled      = isset($data["cancelled"])      ? $data["cancelled"]      : $newsletter->cancelled;
-            $newsletter->sendTime       = isset($data["sendTime"])       ? $data["sendTime"]       : $newsletter->sendTime;
-            $newsletter->recipientGroup = isset($data["recipientGroup"]) ? $data["recipientGroup"] : $newsletter->recipientGroup;
+            if (isset($data["cancelled"])) {
+                if ($data["cancelled"] === 1) {
+                    Mailer::getInstance()->stopMessageSend($newsletter);
+                } else if ($data["cancelled"] === 0) {
+                    if (!isset($data["sendTime"])) {
+                        ErrorManager::addError("cancelled", "cannot_uncancel_newsletter_without_new_send_time");
+                        $this->prepareExit();
+                        return ActionState::DENIED;
+                    }
+                }
+                $newsletter->cancelled = $data["cancelled"];
+            }
+            
+            if (isset($data["bodyBlocks"]) || isset($data["attachments"])) {
+                // TODO(Matthew): Need to use old message due to sender and recipient information.
+//                // Grab old message.
+//                $message = ObjectData::decode($newsletter->serialisedMessage);
+//
+//                // Prepare new message.
+//                $newMessage = new Message();
+//                $newMessage->prepareBody();
+//                
+//                // Handle HTML blocks.
+//                $bodyBlocks = array();
+//                if (isset($data["bodyBlocks"])) {
+//                    $bodyBlocks = $data["bodyBlocks"];
+//                } else {
+//                    $bodyBlocks = $message->getConsituentTemplates();
+//                }
+//                foreach ($bodyBlocks as $bodyBlock) {
+//                    if (!is_array($bodyBlock) || count($bodyBlock) != 2) {
+//                        ErrorManager::addError("body", "invalid_body_block");
+//                        $this->prepareExit();
+//                        return ActionState::DENIED;
+//                    }
+//                    $newMessage->addHtmlBlock($bodyBlock[0], $bodyBlock[1]);
+//                }
+//                
+//                // Handle attachments.
+//                if (isset($data["attachments"])) {
+//                    foreach ($data["attachments"] as $attachment) {
+//                        if (!is_array($attachment) || count($attachment) != 2) {
+//                            ErrorManager::addError("attachments", "invalid_attachment");
+//                            $this->prepareExit();
+//                            return ActionState::DENIED;
+//                        }
+//                        $file = fopen(Application::getConfig()->newsletter->attachmentDirectory . $attachment[1]);
+//                        $newMessage->addAttachment($attachment[0], $file, $attachment[1]);
+//                    }
+//                } else {
+//                    foreach ($message->getAttachments() as $attachment) {
+//                        $newMessage->addAttachmentDirect($attachment);
+//                    }
+//                }
+//                
+//                // Finalise body of message.
+//                $newMessage->finaliseBody();
+//                
+//                // Set new message into newsletter entry.
+//                $newsletter->serialisedMessage = ObjectData::encode($newMessage);
+            }
+            
+            if (isset($data["sendTime"])) {
+                try {
+                    Mailer::getInstance()->updateMessageSendTime($newsletter, $data["sendTime"]);
+                } catch (Exception $ex) {
+                    ErrorManager::addError("send_time", "invalid_send_time");
+                    $this->prepareExit();
+                    return ActionState::DENIED;
+                }
+            }
+            
+            // Enter update information.
+            $newsletter->lastUpdateTime = time();
+            $newsletter->lastUpdatorId = Visitor::getInstance()->id;
             
             // Commit changes.
-            $newsletterTable->save($newsletter, $newsletter->id);
+            $mailMessageTable->save($newsletter, $newsletter->id);
             
             // Let client know newsletter update was successful.
             $this->response->setResponseCode(200)->send();
