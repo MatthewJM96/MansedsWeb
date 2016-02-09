@@ -25,6 +25,7 @@
     use Sycamore\Cron\Scheduler;
     use Sycamore\Mail\Message;
     use Sycamore\Row\MailMessage;
+    use Sycamore\Utils\Directory;
     use Sycamore\Utils\ObjectData;
     use Sycamore\Utils\TableCache;
     
@@ -102,6 +103,56 @@
                 
                 // Schedule the cron job.
                 Scheduler::getInstance()->addCronJobs($task);
+            }
+        }
+        
+        /**
+         * Update the time at which to send a message.
+         * 
+         * @param \Sycamore\Row\MailMessage $mailMessage
+         * @param string $delayTo
+         * 
+         * @throws \InvalidArgumentException
+         */
+        public function updateMessageSendTime(MailMessage& $mailMessage, $delayTo)
+        {
+            if ($delayTo == self::NO_DELAY) {
+                $this->transport->send(ObjectData::decode($mailMessage->serialisedMessage));
+            } else {
+                if (!is_string($delayTo)) {
+                    throw new \InvalidArgumentException("Delay is expected to be a string.");
+                }
+                
+                // Update details.
+                $mailMessage->sendTime = strtotime($delayTo);
+                
+                // Remove old cron job.
+                Scheduler::getInstance()->removeCronJobs("/" . $mailMessage->cronJob . "/");
+                
+                // Create a new cron job.
+                $task = new Job();
+                $task->setTask("php " . APP_DIRECTORY . "/public/index.php email $mailMessage->id");
+                $task->setWhenUtc($delayTo);
+                
+                // Schedule the new cron job.
+                Scheduler::getInstance()->addCronJobs($task);
+            }
+        }
+        
+        /**
+         * Stop the sending of a message.
+         * 
+         * @param \Sycamore\Row\MailMessage $mailMessage
+         */
+        public function stopMessageSend(MailMessage $mailMessage, $permanent = false)
+        {
+            // Remove cron job.
+            Scheduler::getInstance()->removeCronJobs("/" . $mailMessage->cronJob . "/");
+            
+            // Delete attachments of message if stop is permanent.
+            if ($permanent) {
+                // TODO(Matthew): Move to a dedicated attachments class?
+                Directory::delete(Application::getConfig()->newsletter->attachmentDirectory . $mailMessage->id . "/");
             }
         }
         
